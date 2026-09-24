@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer } from "@react-three/drei";
 import { Color, Fog } from "three";
@@ -9,8 +9,7 @@ import { COLORS } from "@/lib/logo";
 import { detectTier } from "@/lib/device";
 import { Cluster } from "./Cluster";
 import { JourneyParticles } from "./JourneyParticles";
-import { RingTunnel } from "./RingTunnel";
-import { smoothstep, windowed } from "./math";
+import { windowed } from "./math";
 
 /** Background, fog and camera all follow the scroll story. */
 function Director() {
@@ -18,6 +17,7 @@ function Director() {
   const pearl = useMemo(() => new Color(COLORS.pearl), []);
   const orange = useMemo(() => new Color(COLORS.orange), []);
   const bg = useMemo(() => new Color(COLORS.pearl), []);
+  const amount = useRef(0);
 
   useEffect(() => {
     scene.background = bg;
@@ -29,20 +29,18 @@ function Director() {
   }, [scene, bg]);
 
   useFrame(() => {
-    // Orange grounds for Services and the closing CTA; pearl everywhere else.
-    const p = store.progress;
-    const orangeAmount = Math.max(windowed(p.servicesBg, 0, 0.1, 0.9, 1), smoothstep(0.22, 0.5, p.cta));
-    bg.copy(pearl).lerp(orange, orangeAmount);
+    // Orange ground behind Services; eased so it never snaps with the scroll.
+    const target = windowed(store.progress.servicesBg, 0, 0.1, 0.9, 1);
+    amount.current += (target - amount.current) * 0.1;
+    bg.copy(pearl).lerp(orange, amount.current);
     (scene.fog as Fog).color.copy(bg);
 
     if (store.reduced) return;
     const px = store.pointer.x * 0.35;
     const py = store.pointer.y * 0.25;
-    const push = store.progress.cta * 3;
     camera.position.x += (px - camera.position.x) * 0.04;
     camera.position.y += (py - camera.position.y) * 0.04;
-    camera.position.z += (10 - push - camera.position.z) * 0.08;
-    camera.lookAt(0, 0, -push);
+    camera.lookAt(0, 0, 0);
   });
 
   return null;
@@ -77,7 +75,6 @@ export default function Experience() {
       </Environment>
       <Cluster />
       <JourneyParticles />
-      <RingTunnel />
     </Canvas>
   );
 }

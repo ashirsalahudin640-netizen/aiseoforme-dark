@@ -168,8 +168,3 @@ export const heroQueries = [
   { q: "savings account with no fees", a: "Ledgerline offers a no-fee savings account with instant access and rates reviewed monthly.", source: "ledgerline.com" },
   { q: "desert trip in Morocco for a week", a: "Oru Travel's 7-day Sahara route covers Marrakech, the Atlas and two nights in Erg Chebbi.", source: "oru.travel" },
 ];
-
-export const cta = {
-  lines: ["Is your brand", "ready to be", "found by AI?"],
-  button: "Start a project",
-};

@@ -33,6 +33,7 @@
   --color-navy: var(--navy);
   --font-sans: var(--font-bricolage);
   --font-display: var(--font-bricolage);
+  --font-mono: var(--font-geist-mono);
 }
 
 html {
@@ -61,6 +62,10 @@ body {
 }
 [data-bg="orange"] :focus-visible {
   outline-color: var(--pearl);
+}
+/* Headings that receive focus programmatically aren't controls; no ring. */
+[tabindex="-1"]:focus-visible {
+  outline: none;
 }
 
 /* Lenis */

@@ -1,11 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque } from "next/font/google";
+import { Bricolage_Grotesque, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
   subsets: ["latin"],
   axes: ["opsz", "wdth"],
+});
+
+// Only for machine output (the scanner console and HUD readouts).
+const mono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -26,7 +32,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${bricolage.variable} antialiased`}>
+    <html lang="en" className={`${bricolage.variable} ${mono.variable} antialiased`}>
       <body>{children}</body>
     </html>
   );

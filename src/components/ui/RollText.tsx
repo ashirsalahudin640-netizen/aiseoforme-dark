@@ -6,7 +6,7 @@ export function RollText({ text, className }: { text: string; className?: string
   return (
     <span className={`roll ${className ?? ""}`}>
       <span className="sr-only">{text}</span>
-      <span aria-hidden="true" className="inline-flex">
+      <span aria-hidden="true" className="inline-flex select-none">
         {Array.from(text).map((c, i) => (
           <span
             key={i}
