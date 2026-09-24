@@ -23,9 +23,9 @@ export function RingTunnel() {
   const mat = useMemo(
     () =>
       new MeshPhysicalMaterial({
-        color: COLORS.orange,
-        emissive: COLORS.orange,
-        emissiveIntensity: 0.55,
+        color: COLORS.pearl,
+        emissive: "#FFE7CC",
+        emissiveIntensity: 0.35,
         roughness: 0.3,
         clearcoat: 1,
         transparent: true,

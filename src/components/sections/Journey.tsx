@@ -39,16 +39,15 @@ export function Journey() {
       <div className="sticky top-0 h-[100dvh] overflow-hidden">
         <div className="frame absolute inset-x-0 top-24 flex items-start justify-between gap-6 md:top-28">
           <div>
-            <p className="meta mb-4 text-navy/50">(How it works)</p>
-            <h2
+                        <h2
               id="journey-title"
-              className="display max-w-[12ch] text-[clamp(2.2rem,4.6vw,4.8rem)] text-navy"
+              className="display max-w-[12ch] text-[clamp(2.4rem,5vw,5rem)] text-orange"
             >
               How search finds you.
             </h2>
           </div>
-          <p className="meta hidden text-right text-navy/50 md:block">
-            Stage <span className="text-orange">0{stage + 1}</span> / 07
+          <p className="hidden pt-2 text-[1.05rem] font-semibold tabular-nums text-roast md:block">
+            Step {stage + 1} <span className="text-roast-soft">of 7</span>
           </p>
         </div>
 
@@ -77,8 +76,8 @@ export function Journey() {
                     on ? "opacity-100" : "opacity-30"
                   }`}
                 >
-                  <span className={`meta ${on ? "text-orange" : "text-navy/60"}`}>0{i + 1}</span>
-                  <span className="text-[clamp(0.95rem,1.35vw,1.35rem)] font-medium tracking-[-0.02em] text-navy">
+                  <span className={`text-[0.8rem] font-semibold tabular-nums ${on ? "text-orange-hot" : "text-roast-soft"}`}>{i + 1}</span>
+                  <span className="text-[clamp(1rem,1.45vw,1.45rem)] font-semibold tracking-[-0.02em] text-roast">
                     {s.label}
                   </span>
                 </div>
@@ -91,7 +90,7 @@ export function Journey() {
           <p
             key={stage}
             aria-live="polite"
-            className="journey-caption max-w-[26ch] text-[clamp(1.4rem,2.6vw,2.6rem)] font-medium leading-[1.05] tracking-[-0.035em] text-navy"
+            className="journey-caption display max-w-[22ch] text-[clamp(1.8rem,3.4vw,3.6rem)] text-roast"
           >
             {journey[stage].caption}
           </p>

@@ -1,12 +1,20 @@
 @import "tailwindcss";
 
+/*
+ * Palette: bright orange × pearl white. Navy is reserved for the logo mark.
+ * Text sits in "roast" — a deep warm brown drawn from the orange — so the page
+ * stays a warm monochrome instead of reading blue.
+ */
 :root {
   --pearl: #fffdf7;
-  --pearl-deep: #f3ede2;
+  --pearl-warm: #fff4e6;
   --orange: #ff7d00;
-  --orange-deep: #e86a00;
+  --orange-hot: #ff6200;
+  --tangerine: #ffa03a;
+  --glow: #ffd9ae;
+  --roast: #3a1a05;
+  --roast-soft: #7a4a26;
   --navy: #0b076e;
-  --navy-ink: #0a0752;
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -15,25 +23,29 @@
 
 @theme inline {
   --color-pearl: var(--pearl);
-  --color-pearl-deep: var(--pearl-deep);
+  --color-pearl-warm: var(--pearl-warm);
   --color-orange: var(--orange);
-  --color-orange-deep: var(--orange-deep);
+  --color-orange-hot: var(--orange-hot);
+  --color-tangerine: var(--tangerine);
+  --color-glow: var(--glow);
+  --color-roast: var(--roast);
+  --color-roast-soft: var(--roast-soft);
   --color-navy: var(--navy);
-  --color-navy-ink: var(--navy-ink);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-bricolage);
+  --font-display: var(--font-bricolage);
 }
 
 html {
   background: var(--pearl);
-  color: var(--navy);
+  color: var(--roast);
   -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--pearl);
-  color: var(--navy);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  color: var(--roast);
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-optical-sizing: auto;
   overflow-x: clip;
 }
 
@@ -43,9 +55,12 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--orange-hot);
   outline-offset: 3px;
-  border-radius: 4px;
+  border-radius: 6px;
+}
+[data-bg="orange"] :focus-visible {
+  outline-color: var(--pearl);
 }
 
 /* Lenis */
@@ -64,39 +79,51 @@ html.lenis body {
   padding-inline: var(--gutter);
 }
 
-.meta {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+/* Small supporting text — sentence case, never shouted. */
+.note {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
 }
 
 .display {
-  font-weight: 500;
-  letter-spacing: -0.055em;
-  line-height: 0.88;
+  font-weight: 700;
+  font-stretch: 90%;
+  letter-spacing: -0.032em;
+  line-height: 0.9;
+  font-variation-settings: "opsz" 96;
+}
+
+/* Hollow type for the second voice in a pair of display lines */
+.outline-type {
+  color: transparent;
+  -webkit-text-stroke: 0.028em currentColor;
 }
 
 /* Line reveal: outer mask + inner translate */
 .line-mask {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.1em;
-  margin-bottom: -0.1em;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
 }
 .line-inner {
   display: block;
 }
+.char {
+  display: inline-block;
+  will-change: transform;
+}
 
-/* Film grain lives on one fixed layer so scrolling never repaints it */
+/* Film grain on one fixed layer so scrolling never repaints it */
 .grain {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 70;
-  opacity: 0.06;
+  opacity: 0.07;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.04  0 0 0 0 0.03  0 0 0 0 0.43  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.15  0 0 0 0 0.02  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
 /* The custom cursor replaces the native one only on fine pointers */
@@ -113,25 +140,32 @@ html.lenis body {
   }
 }
 
-/* Header flips to pearl while it sits over the navy CTA and footer */
+/* Header flips to pearl while it sits over an orange section */
 .site-header {
-  transition: color 400ms ease;
+  transition: color 300ms ease;
 }
-html.tone-dark .site-header {
+.site-header .talk-btn,
+.site-header .menu-btn {
+  transition: background-color 300ms ease, color 300ms ease;
+}
+html.tone-orange .site-header {
   --logo-base: var(--pearl);
+  --logo-accent: var(--pearl);
   color: var(--pearl);
 }
-html.tone-dark .site-header .menu-btn {
+html.tone-orange .site-header .talk-btn,
+html.tone-orange .site-header .menu-btn {
   background: var(--pearl);
-  color: var(--navy);
+  color: var(--orange-hot);
 }
-html.tone-dark.menu-open .site-header {
-  --logo-base: var(--navy);
-  color: var(--navy);
-}
-html.tone-dark.menu-open .site-header .menu-btn {
-  background: var(--navy);
+html.menu-open .site-header {
+  --logo-base: var(--pearl);
+  --logo-accent: var(--pearl);
   color: var(--pearl);
+}
+html.menu-open .site-header .menu-btn {
+  background: var(--pearl);
+  color: var(--orange-hot);
 }
 
 .press {
@@ -154,6 +188,37 @@ html.tone-dark.menu-open .site-header .menu-btn {
   }
 }
 
+/* Roll text: letters flip up to a copy of themselves on hover */
+.roll {
+  display: inline-flex;
+  overflow: hidden;
+  line-height: 1.15;
+}
+.roll-char {
+  display: inline-block;
+  position: relative;
+  white-space: pre;
+  transition: transform 450ms var(--ease-out);
+  transition-delay: calc(var(--i) * 18ms);
+}
+.roll-char::after {
+  content: attr(data-c);
+  position: absolute;
+  left: 0;
+  top: 100%;
+}
+@media (hover: hover) and (pointer: fine) {
+  .roll-host:hover .roll-char,
+  .roll-host:focus-visible .roll-char {
+    transform: translateY(-100%);
+  }
+}
+
+/* Without WebGL, orange sections are painted by the DOM instead */
+html.no-webgl [data-bg="orange"] {
+  background: var(--orange);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -162,9 +227,4 @@ html.tone-dark.menu-open .site-header .menu-btn {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-/* Without WebGL the navy ending is painted by the DOM instead */
-html.no-webgl .cta-section {
-  background: var(--navy);
 }

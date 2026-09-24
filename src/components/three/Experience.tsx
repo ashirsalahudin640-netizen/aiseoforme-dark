@@ -10,13 +10,13 @@ import { detectTier } from "@/lib/device";
 import { Cluster } from "./Cluster";
 import { JourneyParticles } from "./JourneyParticles";
 import { RingTunnel } from "./RingTunnel";
-import { smoothstep } from "./math";
+import { smoothstep, windowed } from "./math";
 
 /** Background, fog and camera all follow the scroll story. */
 function Director() {
   const { scene, camera } = useThree();
   const pearl = useMemo(() => new Color(COLORS.pearl), []);
-  const navy = useMemo(() => new Color(COLORS.navy), []);
+  const orange = useMemo(() => new Color(COLORS.orange), []);
   const bg = useMemo(() => new Color(COLORS.pearl), []);
 
   useEffect(() => {
@@ -29,8 +29,10 @@ function Director() {
   }, [scene, bg]);
 
   useFrame(() => {
-    const dark = smoothstep(0.22, 0.5, store.progress.cta);
-    bg.copy(pearl).lerp(navy, dark);
+    // Orange grounds for Services and the closing CTA; pearl everywhere else.
+    const p = store.progress;
+    const orangeAmount = Math.max(windowed(p.servicesBg, 0, 0.1, 0.9, 1), smoothstep(0.22, 0.5, p.cta));
+    bg.copy(pearl).lerp(orange, orangeAmount);
     (scene.fog as Fog).color.copy(bg);
 
     if (store.reduced) return;
@@ -60,11 +62,11 @@ export default function Experience() {
       gl={{ antialias: tier === "high", powerPreference: "high-performance", alpha: false }}
       camera={{ position: [0, 0, 10], fov: 35, near: 0.1, far: 120 }}
       onCreated={({ gl }) => {
-        gl.toneMappingExposure = 1.05;
+        gl.toneMappingExposure = 1.15;
       }}
     >
       <Director />
-      <ambientLight intensity={0.55} />
+      <ambientLight intensity={0.7} />
       <directionalLight position={[4, 6, 6]} intensity={1.6} color="#fff6e8" />
       <directionalLight position={[-6, -2, 3]} intensity={0.5} color="#ffd2a8" />
       <Environment resolution={tier === "low" ? 64 : 256} frames={1}>

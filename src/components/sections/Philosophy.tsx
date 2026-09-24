@@ -8,6 +8,7 @@ import { philosophy } from "@/content/site";
 
 export function Philosophy() {
   const ref = useRef<HTMLElement>(null);
+  const read = useRef<HTMLParagraphElement>(null);
   useSectionProgress(ref, "philosophy");
 
   useGSAP(
@@ -15,7 +16,6 @@ export function Philosophy() {
       const [l1, l2] = gsap.utils.toArray<HTMLElement>(".phil-line");
       const stats = gsap.utils.toArray<HTMLElement>(".phil-stat-value");
 
-      // Count stats up once they come into view.
       stats.forEach((el) => {
         const target = Number(el.dataset.value);
         const decimals = el.dataset.value?.includes(".") ? 1 : 0;
@@ -38,16 +38,33 @@ export function Philosophy() {
 
       if (store.reduced) return;
 
-      // The two lines drift apart as the section passes.
-      gsap.fromTo(l1, { xPercent: 6 }, {
-        xPercent: -10,
-        ease: "none",
-        scrollTrigger: { trigger: ref.current, start: "top bottom", end: "bottom top", scrub: true },
+      // Scroll-read: each word lights up as the reader reaches it.
+      const words = gsap.utils.toArray<HTMLElement>(".read-word", read.current);
+      words.forEach((w) => (w.style.opacity = "0.14"));
+      const readST = ScrollTrigger.create({
+        trigger: read.current,
+        start: "top 80%",
+        end: "bottom 45%",
+        scrub: true,
+        onUpdate: (self) => {
+          const n = words.length;
+          words.forEach((w, i) => {
+            const local = gsap.utils.clamp(0, 1, self.progress * n - i);
+            w.style.opacity = String(0.14 + local * 0.86);
+          });
+        },
       });
-      gsap.fromTo(l2, { xPercent: -6 }, {
-        xPercent: 10,
+
+      // The two lines drift apart as the section passes.
+      gsap.fromTo(l1, { xPercent: 4 }, {
+        xPercent: -12,
         ease: "none",
-        scrollTrigger: { trigger: ref.current, start: "top bottom", end: "bottom top", scrub: true },
+        scrollTrigger: { trigger: ref.current, start: "top bottom", end: "center top", scrub: true },
+      });
+      gsap.fromTo(l2, { xPercent: -4 }, {
+        xPercent: 12,
+        ease: "none",
+        scrollTrigger: { trigger: ref.current, start: "top bottom", end: "center top", scrub: true },
       });
 
       // Scroll speed skews the type, then it settles.
@@ -65,7 +82,10 @@ export function Philosophy() {
         onLeave: () => (skew1(0), skew2(0)),
         onLeaveBack: () => (skew1(0), skew2(0)),
       });
-      return () => st.kill();
+      return () => {
+        st.kill();
+        readST.kill();
+      };
     },
     { scope: ref },
   );
@@ -75,28 +95,35 @@ export function Philosophy() {
       ref={ref}
       id="about"
       aria-labelledby="about-title"
-      className="relative overflow-hidden pb-[45vh] pt-32 md:pt-56"
+      className="relative overflow-hidden pb-[40vh] pt-32 md:pt-52"
     >
-      <h2 id="about-title" className="display text-[clamp(4rem,17vw,19rem)] text-navy">
+      <h2 id="about-title" className="display text-[clamp(4.2rem,18vw,20rem)] text-orange">
         <span className="phil-line block whitespace-nowrap pl-[var(--gutter)]">{philosophy.lines[0]}</span>
-        <span className="phil-line block whitespace-nowrap pr-[var(--gutter)] text-right">
-          <span className="text-orange">beyond</span> search.
+        <span className="phil-line outline-type block whitespace-nowrap pr-[var(--gutter)] text-right">
+          {philosophy.lines[1]}
         </span>
       </h2>
 
-      <div className="frame mt-20 grid gap-14 md:mt-32 md:grid-cols-12">
-        <p className="meta text-navy/50 md:col-span-3">(About the studio)</p>
-        <p className="text-[clamp(1.25rem,2vw,1.9rem)] font-medium leading-[1.25] tracking-[-0.025em] text-navy md:col-span-8 md:col-start-5">
-          {philosophy.body}
+      <div className="frame mt-24 grid gap-10 md:mt-36 md:grid-cols-12">
+        <p className="text-[1.05rem] font-semibold text-orange-hot md:col-span-3">About the studio</p>
+        <p
+          ref={read}
+          className="text-[clamp(1.6rem,3vw,3rem)] font-semibold leading-[1.12] tracking-[-0.03em] text-roast md:col-span-9"
+        >
+          {philosophy.body.split(" ").map((w, i) => (
+            <span key={i} className="read-word">
+              {w}{" "}
+            </span>
+          ))}
         </p>
       </div>
 
-      <dl className="frame mt-20 grid grid-cols-1 gap-10 sm:grid-cols-3 md:mt-28">
+      <dl className="frame mt-24 grid grid-cols-1 gap-10 sm:grid-cols-3 md:mt-32">
         {philosophy.stats.map((s) => (
-          <div key={s.label} className="border-t border-navy/15 pt-5">
-            <dt className="meta text-navy/50">{s.label}</dt>
+          <div key={s.label} className="border-t-2 border-orange pt-5">
+            <dt className="text-[1rem] font-semibold text-roast-soft">{s.label}</dt>
             <dd
-              className="phil-stat-value display mt-4 text-[clamp(3rem,6vw,6rem)] text-navy"
+              className="phil-stat-value display mt-3 text-[clamp(3.4rem,7vw,7rem)] text-orange"
               data-value={s.value}
               data-suffix={s.suffix}
             >

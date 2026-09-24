@@ -2,6 +2,8 @@ import { Runtime } from "@/components/Runtime";
 import { Loader } from "@/components/Loader";
 import { Header } from "@/components/Header";
 import { Cursor } from "@/components/ui/Cursor";
+import { ScrollRail } from "@/components/ui/ScrollRail";
+import { VelocitySkew } from "@/components/ui/VelocitySkew";
 import { CanvasRoot } from "@/components/three/CanvasRoot";
 import { Hero } from "@/components/sections/Hero";
 import { Reel } from "@/components/sections/Reel";
@@ -29,6 +31,8 @@ export default function Home() {
         <Cta />
       </main>
       <Footer />
+      <ScrollRail />
+      <VelocitySkew />
       <Cursor />
       <div className="grain" aria-hidden="true" />
     </>

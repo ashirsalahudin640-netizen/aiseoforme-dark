@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Group, MeshPhysicalMaterial, Vector3, type BufferGeometry } from "three";
+import { Color, Group, MeshPhysicalMaterial, Vector3, type BufferGeometry } from "three";
 import { store } from "@/lib/store";
 import { COLORS } from "@/lib/logo";
 import { clamp, mulberry32, windowed, smoothstep } from "./math";
@@ -10,29 +10,30 @@ import { heroFormation, scatterFormation, serviceFormation } from "./formations"
 import { createPrimitiveGeometries, logoPartGeometry, type LogoPart } from "./geometries";
 
 type Kind = "logo" | "block" | "capsule" | "sphere" | "torus";
-type Tone = "orange" | "navy" | "pearl";
+type Tone = "orange" | "tangerine" | "navy" | "pearl";
 
 type BodySpec = { kind: Kind; tone: Tone; radius: number };
 
+// Bright orange and pearl, with a single navy accent borrowed from the logo.
 const HIGH: BodySpec[] = [
   { kind: "logo", tone: "orange", radius: 1.05 },
   { kind: "block", tone: "orange", radius: 0.45 },
-  { kind: "capsule", tone: "orange", radius: 0.55 },
+  { kind: "capsule", tone: "tangerine", radius: 0.55 },
   { kind: "sphere", tone: "pearl", radius: 0.42 },
-  { kind: "torus", tone: "navy", radius: 0.55 },
-  { kind: "capsule", tone: "navy", radius: 0.55 },
+  { kind: "torus", tone: "orange", radius: 0.55 },
+  { kind: "capsule", tone: "pearl", radius: 0.55 },
+  { kind: "sphere", tone: "tangerine", radius: 0.42 },
+  { kind: "block", tone: "pearl", radius: 0.45 },
+  { kind: "sphere", tone: "navy", radius: 0.42 },
+  { kind: "capsule", tone: "orange", radius: 0.55 },
+  { kind: "torus", tone: "pearl", radius: 0.55 },
   { kind: "sphere", tone: "orange", radius: 0.42 },
+  { kind: "capsule", tone: "tangerine", radius: 0.55 },
   { kind: "block", tone: "orange", radius: 0.45 },
   { kind: "sphere", tone: "pearl", radius: 0.42 },
-  { kind: "capsule", tone: "orange", radius: 0.55 },
-  { kind: "torus", tone: "orange", radius: 0.55 },
-  { kind: "sphere", tone: "navy", radius: 0.42 },
+  { kind: "torus", tone: "tangerine", radius: 0.55 },
   { kind: "capsule", tone: "pearl", radius: 0.55 },
-  { kind: "block", tone: "navy", radius: 0.45 },
   { kind: "sphere", tone: "orange", radius: 0.42 },
-  { kind: "torus", tone: "pearl", radius: 0.55 },
-  { kind: "capsule", tone: "orange", radius: 0.55 },
-  { kind: "sphere", tone: "pearl", radius: 0.42 },
 ];
 
 const LOW_COUNT = 9;
@@ -78,9 +79,10 @@ export function Cluster() {
         sheenColor: color,
       });
     return {
-      orange: make(COLORS.orange, 0.32),
+      orange: make(COLORS.orange, 0.3),
+      tangerine: make("#FFA03A", 0.3),
       navy: make(COLORS.navy, 0.28),
-      pearl: make("#F1EBDF", 0.4),
+      pearl: make("#FFF8EE", 0.35),
     };
   }, []);
 
@@ -117,6 +119,10 @@ export function Cluster() {
   const scatter = useMemo(() => scatterFormation(n, viewport.width, viewport.height), [n, viewport.width, viewport.height]);
   const serviceSets = useMemo(() => Array.from({ length: 6 }, (_, k) => serviceFormation(k, n)), [n]);
 
+  const baseOrange = useMemo(() => new Color(COLORS.orange), []);
+  const baseTangerine = useMemo(() => new Color("#FFA03A"), []);
+  const pearlWhite = useMemo(() => new Color("#FFF8EE"), []);
+
   const refs = useRef<(Group | null)[]>([]);
   const rotation = useRef(0);
 
@@ -130,7 +136,13 @@ export function Cluster() {
 
     const p = store.progress;
     const wHero = store.ready ? 1 - smoothstep(0.08, 0.55, p.hero) : 0;
-    const wServices = windowed(p.services, 0, 0.12, 0.88, 1);
+    // On phones the services list fills the screen, so the formation sits out.
+    const wServices = portrait ? 0 : windowed(p.services, 0, 0.12, 0.88, 1);
+
+    // Over the orange services ground, warm shapes turn pearl so they read.
+    const onOrange = windowed(p.servicesBg, 0, 0.1, 0.9, 1);
+    materials.orange.color.copy(baseOrange).lerp(pearlWhite, onOrange);
+    materials.tangerine.color.copy(baseTangerine).lerp(pearlWhite, onOrange);
     // Shapes accompany the big type only, then clear out before the paragraph.
     const wPhil = windowed(p.philosophy, 0.1, 0.24, 0.38, 0.5);
     let sum = wHero + wServices + wPhil;
@@ -144,13 +156,13 @@ export function Cluster() {
     const sinR = Math.sin(rot);
 
     const heroAnchor = portrait
-      ? tmp2.set(0, vh * 0.16, 0)
+      ? tmp2.set(0, vh * 0.24, 0)
       : tmp2.set(vw * 0.25, vh * 0.1, 0);
     const heroX = heroAnchor.x;
     const heroY = heroAnchor.y;
-    const servX = portrait ? 0 : vw * 0.22;
+    const servX = portrait ? 0 : vw * 0.3;
     const servY = portrait ? vh * 0.2 : 0;
-    const servScale = portrait ? scale * 0.75 : scale * 0.95;
+    const servScale = portrait ? scale * 0.75 : scale * 0.8;
     const philDrift = (0.5 - p.philosophy) * vh * 0.8;
     const service = serviceSets[store.activeService] ?? serviceSets[0];
     const parkDist = Math.max(vw, vh) * 1.05;

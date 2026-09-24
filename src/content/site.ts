@@ -24,16 +24,20 @@ export const nav = [
 ];
 
 export const hero = {
-  lines: ["We make brands", "findable — by people", "and by AI."],
-  metaLeft: "AI SEO / GEO / Technical",
-  metaRight: "Search visibility studio",
+  lines: ["Be the answer", "people and AI", "go looking for."],
+  intro:
+    "We're an AI SEO studio. We get brands found on Google, cited by ChatGPT and Perplexity, and chosen by the people asking.",
   scroll: "Scroll to explore",
 };
 
 export const reel = {
   label: "Showreel 2026",
   caption: "Search, seen differently.",
+  play: "Play with sound",
 };
+
+/** Words that loop in the kinetic band above Services. */
+export const marquee = ["AI SEO", "Generative engine optimization", "Technical SEO", "Content", "Visibility", "Automation"];
 
 export type CaseStudy = {
   client: string;
@@ -51,8 +55,8 @@ export const work: CaseStudy[] = [
     title: "Becoming the answer for solid-oak furniture",
     result: "Cited in 38% of AI answers for its core category",
     tags: ["GEO", "Content"],
-    image: "/media/work-rings.jpg",
-    alt: "Orange geometric shapes — a cone, half ring and glossy spheres — stacked on an orange set",
+    image: "/media/work-furniture.jpg",
+    alt: "A solid oak dining table and a green leather chair in soft afternoon light",
     year: "2026",
   },
   {
@@ -60,8 +64,8 @@ export const work: CaseStudy[] = [
     title: "Rebuilding a medical site search engines could finally read",
     result: "+212% non-brand organic sessions in seven months",
     tags: ["Technical SEO", "Schema"],
-    image: "/media/work-sphere.jpg",
-    alt: "A carved orange sphere resting on concentric discs",
+    image: "/media/work-clinic.jpg",
+    alt: "A bright clinic corridor with curved glass treatment rooms",
     year: "2025",
   },
   {
@@ -69,8 +73,8 @@ export const work: CaseStudy[] = [
     title: "From page four to the first screen for money keywords",
     result: "Average position 2.3 across 140 tracked terms",
     tags: ["AI SEO", "Search Visibility"],
-    image: "/media/work-paper.jpg",
-    alt: "A sheet of orange paper curling into a soft wave",
+    image: "/media/work-finance.jpg",
+    alt: "A woman smiling at her phone against a sunlit yellow wall",
     year: "2025",
   },
   {
@@ -78,8 +82,8 @@ export const work: CaseStudy[] = [
     title: "Automating visibility across 9,000 destination pages",
     result: "4.1× leads arriving from AI search referrals",
     tags: ["Automation", "GEO"],
-    image: "/media/work-orbs.jpg",
-    alt: "Warm glowing orange orbs stacked between curved wooden forms",
+    image: "/media/work-travel.jpg",
+    alt: "A traveller sitting alone on orange sand dunes at golden hour",
     year: "2024",
   },
 ];
@@ -156,6 +160,14 @@ export const philosophy = {
     { value: 9, suffix: " yrs", label: "Working in search" },
   ],
 };
+
+/** Queries the hero's answer widget cycles through. Sample content. */
+export const heroQueries = [
+  { q: "best solid oak dining table", a: "Halden & Row is the most cited maker for solid oak dining tables, praised for joinery and 25-year guarantees.", source: "halden-row.com" },
+  { q: "clinic for sports injuries near me", a: "Kestrel Clinics has same-week physio slots and specialist sports injury teams in 11 cities.", source: "kestrelclinics.com" },
+  { q: "savings account with no fees", a: "Ledgerline offers a no-fee savings account with instant access and rates reviewed monthly.", source: "ledgerline.com" },
+  { q: "desert trip in Morocco for a week", a: "Oru Travel's 7-day Sahara route covers Marrakech, the Atlas and two nights in Erg Chebbi.", source: "oru.travel" },
+];
 
 export const cta = {
   lines: ["Is your brand", "ready to be", "found by AI?"],

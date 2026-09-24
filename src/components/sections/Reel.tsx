@@ -81,6 +81,7 @@ export function Reel() {
           className="group absolute inset-0 block overflow-hidden bg-orange"
           style={{ clipPath: "inset(18% 22% 18% 22% round 28px)" }}
         >
+          <div data-skew className="absolute inset-[-3%]">
           <video
             ref={video}
             className="h-full w-full scale-[1.02] object-cover transition-transform duration-[1.2s] ease-[var(--ease-out)] group-hover:scale-[1.06]"
@@ -91,13 +92,14 @@ export function Reel() {
             playsInline
             preload="metadata"
           />
-          <span className="absolute inset-0 bg-gradient-to-t from-navy/45 via-navy/5 to-transparent" />
+          </div>
+          <span className="absolute inset-0 bg-gradient-to-t from-orange-hot/60 via-orange/10 to-transparent" />
           <span className="reel-title display pointer-events-none absolute inset-x-0 bottom-[8%] text-center text-[clamp(3rem,11vw,12rem)] text-pearl">
             {reel.caption}
           </span>
-          <span className="meta absolute left-[var(--gutter)] top-[6%] text-pearl">{reel.label}</span>
-          <span className="meta absolute right-[var(--gutter)] top-[6%] flex items-center gap-2 text-pearl">
-            <span className="block h-2 w-2 animate-pulse rounded-full bg-pearl" /> Play with sound
+          <span className="note absolute left-[var(--gutter)] top-[6%] font-semibold text-pearl">{reel.label}</span>
+          <span className="note absolute right-[var(--gutter)] top-[6%] flex items-center gap-2 font-semibold text-pearl">
+            <span className="block h-2 w-2 animate-pulse rounded-full bg-pearl" /> {reel.play}
           </span>
         </button>
       </div>
@@ -106,7 +108,7 @@ export function Reel() {
         ref={dialog}
         onClose={() => setOpen(false)}
         onClick={(e) => e.target === dialog.current && setOpen(false)}
-        className="m-0 h-[100dvh] max-h-none w-screen max-w-none bg-navy/95 p-0 backdrop:bg-transparent"
+        className="m-0 h-[100dvh] max-h-none w-screen max-w-none bg-orange-hot/95 p-0 backdrop:bg-transparent"
         aria-label="Showreel"
       >
         <div className="flex h-full w-full items-center justify-center p-4 md:p-12">
@@ -123,7 +125,7 @@ export function Reel() {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="press meta absolute right-5 top-5 rounded-full bg-pearl px-5 py-3 font-semibold text-navy"
+            className="press absolute right-5 top-5 rounded-full bg-pearl px-5 py-3 font-semibold text-orange-hot"
           >
             Close
           </button>

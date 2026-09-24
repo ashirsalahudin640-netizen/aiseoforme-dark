@@ -1,6 +1,6 @@
 import type Lenis from "lenis";
 
-export type SectionKey = "hero" | "services" | "journey" | "philosophy" | "cta";
+export type SectionKey = "hero" | "services" | "servicesBg" | "journey" | "philosophy" | "cta";
 
 /**
  * Shared, mutable runtime state. Written by DOM (scroll, pointer, hover) and
@@ -17,6 +17,7 @@ export const store = {
   progress: {
     hero: 0,
     services: 0,
+    servicesBg: 0,
     journey: 0,
     philosophy: 0,
     cta: 0,

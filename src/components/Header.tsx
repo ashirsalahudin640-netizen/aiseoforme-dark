@@ -6,6 +6,7 @@ import { onReady, scrollToId, store } from "@/lib/store";
 import { contact, nav } from "@/content/site";
 import { Logo } from "@/components/ui/Logo";
 import { Magnetic } from "@/components/ui/Magnetic";
+import { RollText } from "@/components/ui/RollText";
 
 export function Header() {
   const bar = useRef<HTMLElement>(null);
@@ -118,7 +119,7 @@ export function Header() {
     <>
       <header
         ref={bar}
-        className="site-header frame fixed inset-x-0 top-0 z-[60] flex items-center justify-between py-5 text-navy"
+        className="site-header frame fixed inset-x-0 top-0 z-[60] flex items-center justify-between py-5 text-roast"
       >
         <a
           href="#top"
@@ -127,7 +128,7 @@ export function Header() {
             go("top");
           }}
           className="press"
-          aria-label="AI SEO For Me — back to top"
+          aria-label="AI SEO For Me, back to top"
         >
           <Logo />
         </a>
@@ -140,10 +141,9 @@ export function Header() {
                 e.preventDefault();
                 go("contact");
               }}
-              className="press meta group relative flex h-11 items-center overflow-hidden rounded-full bg-orange px-5 !text-[0.7rem] font-semibold text-pearl"
+              className="talk-btn roll-host press flex h-11 items-center rounded-full bg-orange px-5 text-[0.95rem] font-semibold text-pearl"
             >
-              <span className="relative z-10">Let&apos;s talk</span>
-              <span className="absolute inset-0 origin-bottom scale-y-0 bg-navy transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-y-100" />
+              <RollText text="Let's talk" />
             </a>
           </Magnetic>
           <Magnetic strength={0.25}>
@@ -154,7 +154,7 @@ export function Header() {
               aria-expanded={open}
               aria-controls="site-menu"
               aria-label={open ? "Close menu" : "Open menu"}
-              className="menu-btn press relative flex h-11 w-11 items-center justify-center rounded-full bg-navy text-pearl transition-colors duration-300"
+              className="menu-btn press relative flex h-11 w-11 items-center justify-center rounded-full bg-roast text-pearl"
             >
               <span className="relative block h-3 w-4">
                 <span
@@ -176,13 +176,14 @@ export function Header() {
         aria-modal="true"
         aria-label="Site menu"
         aria-hidden={!open}
-        className="frame invisible fixed inset-0 z-[55] flex flex-col justify-between bg-pearl pb-8 pt-28"
+        data-bg="orange"
+        className="frame invisible fixed inset-0 z-[55] flex flex-col justify-between bg-orange pb-8 pt-28 text-pearl"
         style={{ clipPath: "inset(0% 0% 100% 0%)" }}
       >
         <nav aria-label="Primary">
           <ul className="flex flex-col">
-            {nav.map((item, i) => (
-              <li key={item.id} className="line-mask border-b border-navy/10">
+            {nav.map((item) => (
+              <li key={item.id} className="line-mask">
                 <a
                   href={`#${item.id}`}
                   tabIndex={open ? 0 : -1}
@@ -190,26 +191,25 @@ export function Header() {
                     e.preventDefault();
                     go(item.id);
                   }}
-                  className="menu-link group flex items-baseline justify-between py-2 text-navy"
+                  className="menu-link roll-host group block py-1"
                 >
-                  <span className="display text-[16vw] transition-[transform,color] duration-500 ease-[var(--ease-out)] group-hover:translate-x-4 group-hover:text-orange md:text-[8.5vw]">
-                    {item.label}
+                  <span className="display block text-[17vw] transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-x-4 md:text-[9vw]">
+                    <RollText text={item.label} />
                   </span>
-                  <span className="meta text-navy/50">0{i + 1}</span>
                 </a>
               </li>
             ))}
           </ul>
         </nav>
-        <div className="grid gap-6 pt-8 text-navy md:grid-cols-3">
+        <div className="grid gap-6 pt-8 md:grid-cols-3">
           <a
             href={`mailto:${contact.email}`}
             tabIndex={open ? 0 : -1}
-            className="menu-extra link-line w-fit text-lg"
+            className="menu-extra link-line w-fit text-lg font-medium"
           >
             {contact.email}
           </a>
-          <p className="menu-extra meta self-center text-navy/60">{contact.address}</p>
+          <p className="menu-extra note self-center text-pearl/80">{contact.address}</p>
           <ul className="menu-extra flex gap-5 md:justify-end">
             {contact.socials.map((s) => (
               <li key={s.label}>
@@ -218,7 +218,7 @@ export function Header() {
                   target="_blank"
                   rel="noreferrer"
                   tabIndex={open ? 0 : -1}
-                  className="meta link-line"
+                  className="note link-line font-medium"
                 >
                   {s.label}
                 </a>

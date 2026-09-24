@@ -4,18 +4,17 @@ import { useEffect, useRef } from "react";
 import { gsap } from "@/lib/gsap";
 import { markReady } from "@/lib/store";
 import { prefersReducedMotion } from "@/lib/device";
+import { Logo } from "@/components/ui/Logo";
 
 const SEEN_KEY = "aisfm:intro-seen";
+const DIGITS = Array.from({ length: 10 }, (_, i) => i);
 
 /**
- * First-visit intro: a quiet counter on pearl, then an orange panel sweeps up
- * and away to uncover the hero. Skipped on repeat visits and reduced motion.
+ * First-visit intro on bright orange: three digit columns roll up to 100,
+ * then the whole panel wipes away with the "hop" ease to uncover the hero.
  */
 export function Loader() {
   const root = useRef<HTMLDivElement>(null);
-  const count = useRef<HTMLSpanElement>(null);
-  const panel = useRef<HTMLDivElement>(null);
-  const bar = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = root.current!;
@@ -30,41 +29,28 @@ export function Loader() {
       return;
     }
 
-    store_lock(true);
-    const counter = { v: 0 };
+    document.documentElement.style.overflow = "hidden";
     const loaded = new Promise<void>((resolve) => {
       if (document.readyState === "complete") resolve();
       else window.addEventListener("load", () => resolve(), { once: true });
     });
 
-    const tl = gsap.timeline({ paused: true });
-    tl.to(counter, {
-      v: 100,
-      duration: 1.6,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        const v = Math.round(counter.v);
-        count.current!.textContent = String(v).padStart(3, "0");
-        bar.current!.style.transform = `scaleX(${counter.v / 100})`;
-      },
-    })
-      .to([count.current, bar.current], { opacity: 0, duration: 0.3, ease: "power2.out" })
-      .fromTo(
-        panel.current,
-        { clipPath: "inset(100% 0% 0% 0%)" },
-        { clipPath: "inset(0% 0% 0% 0%)", duration: 0.7, ease: "expo.inOut" },
-        "<",
-      )
+    const cols = el.querySelectorAll<HTMLElement>(".digit-col");
+    const [hundreds, tens, ones] = Array.from(cols);
+    const step = (col: HTMLElement, n: number) => ({ yPercent: (-100 / col.children.length) * n });
+
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "hop" } });
+    tl.to(".loader-bar", { scaleX: 1, duration: 2.2, ease: "power2.inOut" }, 0)
+      .to(ones, { ...step(ones, 20), duration: 2.2, ease: "power2.inOut" }, 0)
+      .to(tens, { ...step(tens, 10), duration: 2.2, ease: "power2.inOut" }, 0)
+      .to(hundreds, { ...step(hundreds, 1), duration: 0.6 }, 1.6)
+      .to(".loader-logo", { yPercent: -120, duration: 0.8 }, 2.3)
+      .to(".loader-count", { yPercent: -120, duration: 0.8 }, 2.35)
       .add(() => {
-        el.style.background = "transparent";
         markReady();
-        store_lock(false);
-      })
-      .to(panel.current, {
-        clipPath: "inset(0% 0% 100% 0%)",
-        duration: 0.9,
-        ease: "expo.inOut",
-      })
+        document.documentElement.style.overflow = "";
+      }, 2.7)
+      .to(el, { clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)", duration: 1.2 }, 2.6)
       .add(() => {
         el.style.display = "none";
         try {
@@ -72,21 +58,19 @@ export function Loader() {
         } catch {}
       });
 
-    // Let the counter run, but hold near the end until the page has loaded.
+    // Hold just before the wipe until the page has actually loaded.
     let isLoaded = false;
-    loaded.then(() => {
-      isLoaded = true;
-    });
+    loaded.then(() => (isLoaded = true));
     tl.add(() => {
       if (isLoaded) return;
       tl.pause();
       loaded.then(() => tl.play());
-    }, 1.2);
+    }, 2.2);
     tl.play();
 
     return () => {
       tl.kill();
-      store_lock(false);
+      document.documentElement.style.overflow = "";
     };
   }, []);
 
@@ -94,27 +78,39 @@ export function Loader() {
     <div
       ref={root}
       aria-hidden="true"
-      className="fixed inset-0 z-[90] bg-pearl"
+      className="fixed inset-0 z-[90] bg-orange text-pearl"
+      style={{ clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" }}
     >
-      <div className="frame absolute inset-x-0 bottom-10 flex items-end justify-between">
-        <span className="meta text-navy/60">AI SEO For Me — loading</span>
-        <span ref={count} className="display text-[18vw] leading-none text-navy md:text-[9rem]">
-          000
-        </span>
+      <div className="frame absolute inset-x-0 top-6 overflow-hidden">
+        <div className="loader-logo">
+          <Logo tone="pearl" />
+        </div>
       </div>
-      <div
-        ref={bar}
-        className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-orange"
-      />
-      <div
-        ref={panel}
-        className="absolute inset-0 bg-orange"
-        style={{ clipPath: "inset(100% 0% 0% 0%)" }}
-      />
+      <div className="frame absolute inset-x-0 bottom-6 flex items-end justify-between gap-6 overflow-hidden md:bottom-8">
+        <p className="loader-count note max-w-[22ch] text-pearl/85">
+          Getting you found — by people and by AI.
+        </p>
+        <div className="loader-count display flex h-[0.86em] overflow-hidden text-[30vw] leading-[0.86] md:text-[16rem]">
+          <DigitColumn digits={[0, 1]} />
+          <DigitColumn digits={[...DIGITS, 0]} />
+          <DigitColumn digits={[...DIGITS, ...DIGITS, 0]} />
+        </div>
+      </div>
+      <div className="loader-bar absolute inset-x-0 bottom-0 h-[6px] origin-left scale-x-0 bg-pearl" />
     </div>
   );
 }
 
-function store_lock(lock: boolean) {
-  document.documentElement.style.overflow = lock ? "hidden" : "";
+function DigitColumn({ digits }: { digits: number[] }) {
+  return (
+    <div className="h-[0.86em] overflow-hidden">
+      <div className="digit-col flex flex-col">
+        {digits.map((d, i) => (
+          <span key={i} className="block h-[0.86em]">
+            {d}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
 }

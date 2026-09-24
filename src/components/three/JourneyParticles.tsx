@@ -66,7 +66,7 @@ export function JourneyParticles() {
     const colors = new Float32Array(count * 3);
     const seeds = new Float32Array(count * 5); // t0, speed, jx, jy, jz
     const orange = new Color(COLORS.orange);
-    const navy = new Color(COLORS.navy);
+    const deep = new Color("#C24A00");
     for (let i = 0; i < count; i++) {
       seeds[i * 5] = rand();
       seeds[i * 5 + 1] = 0.025 + rand() * 0.05;
@@ -75,7 +75,7 @@ export function JourneyParticles() {
       seeds[i * 5 + 2] = Math.cos(a) * r;
       seeds[i * 5 + 3] = Math.sin(a) * r;
       seeds[i * 5 + 4] = (rand() - 0.5) * 2;
-      const c = rand() < 0.14 ? navy : orange;
+      const c = rand() < 0.22 ? deep : orange;
       colors.set([c.r, c.g, c.b], i * 3);
     }
     const geometry = new BufferGeometry();
@@ -113,7 +113,7 @@ export function JourneyParticles() {
 
   const nodeGeo = useMemo(() => new SphereGeometry(0.09, 20, 20), []);
   const nodeMats = useMemo(
-    () => nodes.map(() => new MeshBasicMaterial({ color: COLORS.navy, transparent: true, opacity: 0 })),
+    () => nodes.map(() => new MeshBasicMaterial({ color: "#7A4A26", transparent: true, opacity: 0 })),
     [nodes],
   );
   const glowMat = useMemo(
@@ -146,7 +146,7 @@ export function JourneyParticles() {
   const group = useRef<Group>(null);
   const nodeRefs = useRef<(Mesh | null)[]>([]);
   const orangeC = useMemo(() => new Color(COLORS.orange), []);
-  const navyC = useMemo(() => new Color(COLORS.navy), []);
+  const idleC = useMemo(() => new Color("#7A4A26"), []);
 
   useFrame((state) => {
     const p = store.progress.journey;
@@ -187,7 +187,7 @@ export function JourneyParticles() {
       const reached = reach >= i / 6 - 0.001;
       const mat = nodeMats[i];
       mat.opacity = vis;
-      mat.color.lerp(reached ? orangeC : navyC, 0.12);
+      mat.color.lerp(reached ? orangeC : idleC, 0.12);
       const target = (reached ? 1.6 : 1) * nodeScale;
       m.scale.setScalar(m.scale.x + (target - m.scale.x) * 0.1);
     });
