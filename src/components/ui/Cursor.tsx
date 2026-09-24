@@ -47,7 +47,7 @@ export function Cursor() {
 
     const onOver = (e: PointerEvent) => {
       const target = e.target as HTMLElement | null;
-      wrap.current?.classList.toggle("on-orange", !!target?.closest('[data-bg="orange"]'));
+      wrap.current?.classList.toggle("on-dark", !!target?.closest('[data-tone="dark"], footer'));
       const labelled = target?.closest<HTMLElement>("[data-cursor]");
       if (labelled) {
         setState(labelled.dataset.cursor || null, true);
@@ -106,12 +106,12 @@ export function Cursor() {
           left: -18px; top: -18px;
           width: 36px; height: 36px;
           border-radius: 999px;
-          border: 1.5px solid color-mix(in srgb, var(--orange) 60%, transparent);
+          border: 1px solid color-mix(in srgb, var(--orange) 55%, transparent);
           transition: transform 450ms var(--ease-out), background-color 300ms ease, border-color 300ms ease;
         }
         .cursor-ring.is-hover::before {
           transform: scale(1.6);
-          background: color-mix(in srgb, var(--orange) 12%, transparent);
+          background: color-mix(in srgb, var(--ink) 8%, transparent);
           border-color: transparent;
         }
         .cursor-ring.is-label::before {
@@ -119,18 +119,17 @@ export function Cursor() {
           background: var(--orange);
           border-color: transparent;
         }
-        .cursor-wrap.on-orange .cursor-dot { background: var(--pearl); }
-        .cursor-wrap.on-orange .cursor-ring::before { border-color: color-mix(in srgb, var(--pearl) 70%, transparent); }
-        .cursor-wrap.on-orange .cursor-ring.is-hover::before { background: color-mix(in srgb, var(--pearl) 18%, transparent); }
-        .cursor-wrap.on-orange .cursor-ring.is-label::before { background: var(--pearl); }
-        .cursor-wrap.on-orange .cursor-label { color: var(--orange-hot); }
+        .cursor-wrap.on-dark .cursor-dot { background: var(--paper); }
+        .cursor-wrap.on-dark .cursor-ring::before { border-color: color-mix(in srgb, var(--paper) 50%, transparent); }
+        .cursor-wrap.on-dark .cursor-ring.is-label::before { background: var(--paper); }
+        .cursor-wrap.on-dark .cursor-label { color: var(--ink); }
         .cursor-label {
           font-size: 0.8rem;
           letter-spacing: -0.01em;
           position: absolute;
           left: 0; top: 0;
           transform: translate(-50%, -50%) scale(0.6);
-          color: var(--pearl);
+          color: var(--paper);
           opacity: 0;
           white-space: nowrap;
           font-weight: 600;

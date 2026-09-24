@@ -11,6 +11,18 @@ const eslintConfig = defineConfig([
     files: ["src/components/three/**/*.{ts,tsx}"],
     rules: { "react-hooks/immutability": "off" },
   },
+  {
+    // Vendored VengeanceUI registry components, kept as shipped.
+    files: [
+      "src/components/ui/image-reveal-list.tsx",
+      "src/components/ui/reveal-loader.tsx",
+      "src/components/ui/scroll-dissolve-reveal.tsx",
+    ],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@next/next/no-img-element": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

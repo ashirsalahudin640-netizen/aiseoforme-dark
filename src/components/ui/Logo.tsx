@@ -1,15 +1,15 @@
 import { LOGO_PATHS, LOGO_VIEWBOX } from "@/lib/logo";
 
 type Props = {
-  /** "light" = official navy + orange; "pearl" = single-colour mark for orange grounds. */
-  tone?: "light" | "pearl";
+  /** "light" = official navy + orange; "dark" = paper + orange for ink grounds; "pearl" = single colour. */
+  tone?: "light" | "dark" | "pearl";
   withWordmark?: boolean;
   className?: string;
 };
 
 export function Logo({ tone = "light", withWordmark = true, className }: Props) {
-  const base = tone === "light" ? "var(--logo-base, var(--navy))" : "var(--pearl)";
-  const accent = tone === "light" ? "var(--logo-accent, var(--orange))" : "var(--pearl)";
+  const base = tone === "light" ? "var(--navy)" : "var(--paper)";
+  const accent = tone === "pearl" ? "var(--paper)" : "var(--orange)";
   return (
     <span className={`inline-flex items-center gap-3 ${className ?? ""}`}>
       <svg

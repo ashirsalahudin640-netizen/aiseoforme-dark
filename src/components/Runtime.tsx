@@ -8,7 +8,7 @@ import { detectTier, prefersReducedMotion } from "@/lib/device";
 
 /**
  * Boots the shared runtime once: device tier, reduced-motion flag, Lenis
- * smooth scroll driven by the GSAP ticker, and global pointer tracking.
+ * smooth scroll driven by the GSAP ticker (one RAF loop), and pointer tracking.
  */
 export function Runtime() {
   useEffect(() => {
@@ -18,10 +18,9 @@ export function Runtime() {
     let lenis: Lenis | null = null;
     let tick: ((time: number) => void) | null = null;
 
-    // Touch devices keep native scrolling; Lenis only smooths wheel input,
-    // with a high lerp so it never feels behind the user's hand.
+    // Touch keeps native scrolling; wheel input gets a light, responsive lerp.
     if (!store.reduced) {
-      lenis = new Lenis({ lerp: 0.14, wheelMultiplier: 1, syncTouch: false });
+      lenis = new Lenis({ lerp: 0.12, wheelMultiplier: 1, anchors: { offset: 0 } });
       store.lenis = lenis;
       lenis.on("scroll", (l: Lenis) => {
         store.scrollVelocity = l.velocity;
@@ -33,26 +32,19 @@ export function Runtime() {
     }
 
     const onMove = (e: PointerEvent) => {
-      const x = (e.clientX / window.innerWidth) * 2 - 1;
-      const y = -((e.clientY / window.innerHeight) * 2 - 1);
-      store.pointer.vx = x - store.pointer.x;
-      store.pointer.vy = y - store.pointer.y;
-      store.pointer.x = x;
-      store.pointer.y = y;
-      store.pointer.active = true;
-    };
-    const onLeave = () => {
-      store.pointer.active = false;
+      store.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+      store.pointer.y = -((e.clientY / window.innerHeight) * 2 - 1);
     };
     window.addEventListener("pointermove", onMove, { passive: true });
-    document.documentElement.addEventListener("pointerleave", onLeave);
 
-    // Fonts can shift layout after first paint; re-measure triggers then.
+    // Fonts and images can shift layout after first paint; re-measure then.
     document.fonts?.ready.then(() => ScrollTrigger.refresh());
+    const onLoad = () => ScrollTrigger.refresh();
+    window.addEventListener("load", onLoad);
 
     return () => {
       window.removeEventListener("pointermove", onMove);
-      document.documentElement.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("load", onLoad);
       if (tick) gsap.ticker.remove(tick);
       lenis?.destroy();
       store.lenis = null;

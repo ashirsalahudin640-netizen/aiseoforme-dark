@@ -1,38 +1,36 @@
 import { Runtime } from "@/components/Runtime";
-import { Loader } from "@/components/Loader";
-import { Header } from "@/components/Header";
+import { IntroLoader } from "@/components/IntroLoader";
+import { Brand } from "@/components/Brand";
+import { Dock } from "@/components/Dock";
 import { Cursor } from "@/components/ui/Cursor";
-import { ScrollRail } from "@/components/ui/ScrollRail";
-import { VelocitySkew } from "@/components/ui/VelocitySkew";
-import { CanvasRoot } from "@/components/three/CanvasRoot";
 import { Hero } from "@/components/sections/Hero";
-import { Reel } from "@/components/sections/Reel";
+import { Statement } from "@/components/sections/Statement";
+import { Showcase } from "@/components/sections/Showcase";
 import { Work } from "@/components/sections/Work";
 import { Services } from "@/components/sections/Services";
-import { Journey } from "@/components/sections/Journey";
-import { Philosophy } from "@/components/sections/Philosophy";
-import { Cta } from "@/components/sections/Cta";
+import { Orbit } from "@/components/sections/Orbit";
+import { Process } from "@/components/sections/Process";
+import { Closing } from "@/components/sections/Closing";
 import { Footer } from "@/components/sections/Footer";
 
 export default function Home() {
   return (
     <>
       <Runtime />
-      <Loader />
-      <CanvasRoot />
-      <Header />
-      <main className="relative z-10">
+      <IntroLoader />
+      <Brand />
+      <main className="relative">
         <Hero />
-        <Reel />
+        <Statement />
+        <Showcase />
         <Work />
         <Services />
-        <Journey />
-        <Philosophy />
-        <Cta />
+        <Orbit />
+        <Process />
+        <Closing />
       </main>
       <Footer />
-      <ScrollRail />
-      <VelocitySkew />
+      <Dock />
       <Cursor />
       <div className="grain" aria-hidden="true" />
     </>

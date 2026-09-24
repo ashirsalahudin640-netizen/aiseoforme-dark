@@ -1,110 +1,141 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { setActiveService } from "@/lib/store";
-import { useSectionProgress } from "@/lib/useSectionProgress";
-import { useOrangeTone } from "@/lib/useOrangeTone";
-import { marquee, services } from "@/content/site";
-import { RevealLines } from "@/components/ui/RevealLines";
-import { Marquee } from "@/components/ui/Marquee";
+import { useRef } from "react";
+import Image from "next/image";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { store } from "@/lib/store";
+import { services } from "@/content/site";
+import { FluidMorphBg } from "@/components/ui/fluid-morph-bg";
+import { BorderBeam } from "@/components/ui/border-beam";
 
+/**
+ * Pinned horizontal gallery (animmaster "scroll hijack"): vertical scroll pans
+ * the six services sideways. Scrub is smoothed so the track glides, never snaps.
+ * Phones and reduced motion get a plain vertical stack.
+ */
 export function Services() {
   const ref = useRef<HTMLElement>(null);
-  const [active, setActive] = useState(0);
-  const [hovering, setHovering] = useState(false);
-  useSectionProgress(ref, "services", "top 65%", "bottom 35%");
-  useSectionProgress(ref, "servicesBg", "top 80%", "bottom 50%");
-  useOrangeTone(ref);
+  const track = useRef<HTMLDivElement>(null);
+  const bar = useRef<HTMLSpanElement>(null);
 
-  const select = (i: number) => {
-    setActiveService(i);
-    setActive(i);
-  };
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add("(min-width: 900px) and (prefers-reduced-motion: no-preference)", () => {
+        if (store.reduced) return;
+        const el = track.current!;
+        const distance = () => el.scrollWidth - window.innerWidth;
+        const tween = gsap.to(el, {
+          x: () => -distance(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: ref.current,
+            start: "top top",
+            end: () => "+=" + distance(),
+            pin: true,
+            scrub: 1,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              if (bar.current) bar.current.style.transform = `scaleX(${self.progress})`;
+            },
+          },
+        });
+        // Each card's image drifts against the pan for depth.
+        gsap.utils.toArray<HTMLElement>(".svc-img").forEach((img) => {
+          gsap.fromTo(img, { xPercent: -8 }, {
+            xPercent: 8,
+            ease: "none",
+            scrollTrigger: {
+              trigger: img.closest(".svc-card"),
+              containerAnimation: tween,
+              start: "left right",
+              end: "right left",
+              scrub: true,
+            },
+          });
+        });
+        return () => ScrollTrigger.refresh();
+      });
+      return () => mm.revert();
+    },
+    { scope: ref },
+  );
 
   return (
-    <section
-      ref={ref}
-      id="services"
-      data-bg="orange"
-      aria-labelledby="services-title"
-      className="relative pb-28 pt-24 text-pearl md:pb-44 md:pt-32"
-    >
-      <Marquee
-        items={marquee}
-        className="display mb-20 text-[clamp(3.5rem,11vw,11rem)] text-pearl/95 md:mb-32"
-      />
+    <section ref={ref} id="services" aria-labelledby="services-title" className="relative overflow-hidden">
+      {/* Warm liquid backdrop in the logo colours; the cards are crystal glass over it. */}
+      <div className="pointer-events-none absolute inset-0 opacity-90" aria-hidden="true">
+        <FluidMorphBg
+          duration={9}
+          backgroundColor="#fff3e6"
+          colors={["#ffe2c4", "#ffc58f", "#ff9a3c", "#ff7d00", "#ffb266", "#2a27a8", "#0b076e"]}
+        />
+      </div>
+      <div className="pointer-events-none absolute inset-0 bg-white/35" aria-hidden="true" />
+      <div className="flex min-h-[100dvh] flex-col justify-center py-24 min-[900px]:py-0">
+        <div
+          ref={track}
+          className="flex flex-col gap-6 px-[var(--gutter)] min-[900px]:w-max min-[900px]:flex-row min-[900px]:items-stretch min-[900px]:gap-8"
+        >
+          <div className="flex flex-col justify-between gap-10 min-[900px]:w-[34vw] min-[900px]:py-4 min-[900px]:pr-10">
+            <div>
+              <p className="eyebrow mb-5 text-ink">What we do</p>
+              <h2 id="services-title" className="display text-[clamp(3rem,6vw,6.5rem)] text-ink">
+                Six ways to be <span className="text-crystal">found.</span>
+              </h2>
+            </div>
+            <p className="max-w-[34ch] text-[1.05rem] leading-relaxed text-ink">
+              One team for every surface where search now happens — from the crawl to the citation.
+              Scroll to move through them.
+            </p>
+          </div>
 
-      <div className="frame grid gap-12 md:grid-cols-12">
-        <div className="md:col-span-7">
-          <RevealLines
-            id="services-title"
-            lines={["Six ways", "to be found."]}
-            className="display text-[clamp(3rem,8.5vw,8.5rem)]"
-          />
-
-          <ul
-            className="mt-14 border-t border-pearl/35 md:mt-20"
-            onPointerEnter={() => setHovering(true)}
-            onPointerLeave={() => setHovering(false)}
-          >
-            {services.map((s, i) => {
-              const isActive = active === i;
-              const dim = hovering && !isActive;
-              return (
-                <li key={s.title} className="border-b border-pearl/35">
-                  <button
-                    type="button"
-                    aria-expanded={isActive}
-                    aria-controls={`svc-${i}`}
-                    onPointerEnter={(e) => e.pointerType === "mouse" && select(i)}
-                    onFocus={() => select(i)}
-                    onClick={() => select(i)}
-                    className="group flex w-full items-center gap-6 py-5 text-left md:py-6"
-                  >
-                    <span
-                      className={`display text-[clamp(1.9rem,4.4vw,4.4rem)] !leading-[0.95] transition-[opacity,transform] duration-500 ease-[var(--ease-out)] ${
-                        isActive ? "translate-x-3 md:translate-x-5" : ""
-                      } ${dim ? "opacity-40" : "opacity-100"}`}
-                    >
-                      {s.title}
-                    </span>
-                    <span
-                      aria-hidden="true"
-                      className={`ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-[transform,background-color,color] duration-500 ease-[var(--ease-out)] ${
-                        isActive ? "rotate-0 bg-pearl text-orange-hot" : "-rotate-45 bg-pearl/15 text-pearl"
-                      }`}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M2 7H12M12 7L7.5 2.5M12 7L7.5 11.5" stroke="currentColor" strokeWidth="1.8" />
-                      </svg>
-                    </span>
-                  </button>
-                  <div
-                    id={`svc-${i}`}
-                    className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[var(--ease-out)] ${
-                      isActive ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                    }`}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="grid gap-5 pb-8 md:grid-cols-[1.4fr_1fr] md:pl-5">
-                        <p className="max-w-[44ch] text-[1.05rem] leading-relaxed">{s.body}</p>
-                        <ul className="flex flex-wrap content-start gap-2">
-                          {s.points.map((p) => (
-                            <li key={p} className="rounded-full border border-pearl/50 px-3 py-1.5 text-[0.85rem] font-medium">
-                              {p}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          {services.map((s, i) => (
+            <article
+              key={s.title}
+              className="svc-card crystal group relative flex flex-col overflow-hidden rounded-3xl min-[900px]:h-[76vh] min-[900px]:w-[min(38vw,560px)]"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden min-[900px]:aspect-auto min-[900px]:h-[48%]">
+                <div className="svc-img absolute inset-y-0 -left-[10%] -right-[10%]">
+                  <Image
+                    src={s.image}
+                    alt={s.alt}
+                    fill
+                    sizes="(min-width: 900px) 40vw, 92vw"
+                    loading="eager"
+                    className="object-cover transition-transform duration-[1.2s] ease-[var(--ease-out)] group-hover:scale-[1.04]"
+                  />
+                </div>
+              </div>
+              <BorderBeam size={260} duration={9 + i} colorFrom="#ff7d00" colorTo="#0b076e" borderWidth={1.5} />
+              <div className="flex flex-1 flex-col justify-between gap-6 p-7 md:p-9">
+                <div>
+                  <p className="font-mono text-[0.8rem] text-orange">
+                    {String(i + 1).padStart(2, "0")} / {String(services.length).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-3 text-[clamp(1.6rem,2.3vw,2.3rem)] font-light leading-[1.05] tracking-[-0.03em] text-ink">
+                    {s.title}
+                  </h3>
+                  <p className="mt-4 text-[1rem] leading-relaxed text-ink-soft">{s.body}</p>
+                </div>
+                <ul className="flex flex-wrap gap-2">
+                  {s.points.map((p) => (
+                    <li key={p} className="rounded-full border border-line px-3 py-1 text-[0.8rem] text-ink-soft">
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </article>
+          ))}
+          <div className="hidden w-[6vw] shrink-0 min-[900px]:block" aria-hidden="true" />
         </div>
-        {/* The WebGL formation for the active service fills this column. */}
-        <div className="hidden md:col-span-5 md:block" aria-hidden="true" />
+
+        <div className="frame absolute inset-x-0 bottom-8 hidden min-[900px]:block" aria-hidden="true">
+          <div className="h-[2px] w-full overflow-hidden rounded-full bg-line">
+            <span ref={bar} className="block h-full origin-left scale-x-0 bg-gradient-to-r from-orange to-navy" />
+          </div>
+        </div>
       </div>
     </section>
   );

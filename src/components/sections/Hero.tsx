@@ -1,115 +1,107 @@
 "use client";
 
-import { useRef } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { ArrowUpRight } from "lucide-react";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import { onReady, scrollToId, store } from "@/lib/store";
-import { hasFinePointer } from "@/lib/device";
-import { useSectionProgress } from "@/lib/useSectionProgress";
 import { hero } from "@/content/site";
-import { MagneticHeadline } from "@/components/ui/MagneticHeadline";
-import { AnswerWidget } from "@/components/ui/AnswerWidget";
-import { Magnetic } from "@/components/ui/Magnetic";
-import { RollText } from "@/components/ui/RollText";
+import { GooeyTextReveal } from "@/components/ui/gooey-text-reveal";
+import { LiquidMetalButton } from "@/components/ui/liquid-metal";
+
+const PrismScene = dynamic(() => import("@/components/three/PrismScene"), { ssr: false });
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
-  const glow = useRef<HTMLDivElement>(null);
-  useSectionProgress(ref, "hero", "top top", "bottom top");
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => onReady(() => setReady(true)), []);
 
   useGSAP(
     () => {
-      if (store.reduced) return;
-      const rest = gsap.utils.toArray<HTMLElement>(".hero-rest");
-      gsap.set(rest, { clipPath: "inset(0% 0% 100% 0%)", yPercent: 25 });
-      const stop = onReady(() =>
-        gsap.to(rest, {
-          clipPath: "inset(0% 0% -20% 0%)",
-          yPercent: 0,
-          duration: 1.1,
-          delay: 0.9,
-          stagger: 0.1,
-          ease: "power4.out",
-        }),
-      );
-      gsap.to(".hero-bottom", {
-        yPercent: -40,
-        opacity: 0,
-        ease: "none",
-        scrollTrigger: { trigger: ref.current, start: "top top", end: "60% top", scrub: 0.6 },
+      // Feed the 3D prism an eased progress value as the hero scrolls away.
+      const st = ScrollTrigger.create({
+        trigger: ref.current,
+        start: "top top",
+        end: "bottom top",
+        onUpdate: (self) => (store.heroProgress = self.progress),
       });
-
-      // Warm light that trails the cursor across the hero.
-      if (!hasFinePointer()) return stop;
-      const g = glow.current!;
-      const gx = gsap.quickTo(g, "x", { duration: 0.9, ease: "power3.out" });
-      const gy = gsap.quickTo(g, "y", { duration: 0.9, ease: "power3.out" });
-      const onMove = (e: PointerEvent) => {
-        const r = ref.current!.getBoundingClientRect();
-        gx(e.clientX - r.left);
-        gy(e.clientY - r.top);
-      };
-      ref.current!.addEventListener("pointermove", onMove);
-      return () => {
-        stop();
-        ref.current?.removeEventListener("pointermove", onMove);
-      };
+      if (!store.reduced) {
+        gsap.set([".hero-fade", ".hero-canvas"], { opacity: 0 });
+        gsap.to(".hero-copy", {
+          yPercent: -18,
+          opacity: 0,
+          ease: "none",
+          scrollTrigger: { trigger: ref.current, start: "top top", end: "70% top", scrub: 1 },
+        });
+      }
+      return () => st.kill();
     },
     { scope: ref },
   );
 
+  useGSAP(
+    () => {
+      if (!ready || store.reduced) return;
+      gsap.fromTo(
+        ".hero-fade",
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 1, delay: 0.9, stagger: 0.08, ease: "power3.out" },
+      );
+      gsap.fromTo(".hero-canvas", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 1.8, ease: "power3.out" });
+    },
+    { scope: ref, dependencies: [ready] },
+  );
+
   return (
-    <section
-      ref={ref}
-      id="top"
-      aria-label="Introduction"
-      className="frame relative flex min-h-[100dvh] flex-col justify-end overflow-hidden pb-8 pt-28 md:pb-10"
-    >
-      <div
-        ref={glow}
-        aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 -ml-[35vmax] -mt-[35vmax] h-[70vmax] w-[70vmax] rounded-full opacity-70 mix-blend-multiply"
-        style={{
-          background: "radial-gradient(closest-side, rgba(255,160,58,0.55), rgba(255,217,174,0.25) 55%, transparent)",
-          transform: "translate(70vw, 40vh)",
-        }}
-      />
+    <section ref={ref} id="top" aria-label="Introduction" className="relative min-h-[100dvh] overflow-hidden">
+      <div className="hero-canvas absolute inset-0" aria-hidden="true">
+        <PrismScene />
+      </div>
 
-      <MagneticHeadline
-        lines={hero.lines}
-        scrollTrigger={ref}
-        className="display relative text-[clamp(3rem,9.4vw,10.5rem)] text-orange"
-      />
+      <div className="hero-copy frame relative flex min-h-[100dvh] flex-col justify-end pb-28 pt-32 md:pb-32">
+        {ready ? (
+          <h1 className="display max-w-[14ch] text-[clamp(2.8rem,7.4vw,8.4rem)] text-ink">
+            <GooeyTextReveal mode="immediate" duration={1.3} stagger={0.14} blurAmount={0.8}>
+              <span className="block">{hero.lines[0]}</span>
+              <span className="block text-crystal pb-[0.08em]">{hero.lines[1]}</span>
+            </GooeyTextReveal>
+          </h1>
+        ) : (
+          <h1 className="display max-w-[14ch] text-[clamp(2.8rem,7.4vw,8.4rem)] text-ink opacity-0">
+            <span className="block">{hero.lines[0]}</span>
+            <span className="block">{hero.lines[1]}</span>
+          </h1>
+        )}
 
-      <div className="hero-bottom relative mt-8 grid items-end gap-6 md:mt-12 md:grid-cols-[minmax(0,1fr)_auto] md:gap-10">
-        <div className="flex flex-col gap-6">
-          <p className="hero-rest max-w-[38ch] text-[1.05rem] leading-snug text-roast">{hero.intro}</p>
-          <div className="hero-rest flex items-center gap-5">
-            <Magnetic strength={0.3}>
-              <a
-                href="#work"
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToId("work");
-                }}
-                className="roll-host press flex h-14 items-center rounded-full bg-roast px-7 text-[1rem] font-semibold text-pearl"
-              >
-                <RollText text="See the work" />
-              </a>
-            </Magnetic>
-            <p className="note hidden items-center gap-3 text-roast-soft sm:flex">
-              <span className="relative block h-10 w-[2px] overflow-hidden rounded-full bg-orange/20">
-                <span className="scroll-cue absolute inset-x-0 top-0 h-1/2 rounded-full bg-orange" />
-              </span>
-              {hero.scroll}
-            </p>
+        <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-[minmax(0,34rem)_auto] md:items-end md:justify-between">
+          <p className="hero-fade max-w-[40ch] text-[1.05rem] leading-relaxed text-ink-soft">{hero.intro}</p>
+          <div className="hero-fade flex flex-wrap items-center gap-5">
+            <LiquidMetalButton
+              size="lg"
+              data-cursor="Open"
+              onClick={() => scrollToId("contact")}
+              icon={<ArrowUpRight className="h-5 w-5 text-ink" strokeWidth={1.6} />}
+              metalConfig={{ colorBack: "#ff7d00", colorTint: "#ffe2c4", speed: 0.35 }}
+            >
+              <span className="font-medium text-ink">Start a project</span>
+            </LiquidMetalButton>
+            <a
+              href="#work"
+              className="link-line text-[0.95rem] font-medium text-ink"
+            >
+              See the work
+            </a>
           </div>
         </div>
-        <AnswerWidget className="hero-rest" />
+
+        <div className="hero-fade mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-line pt-6 text-[0.9rem] text-ink-soft">
+          <span className="font-medium text-orange">Visible in</span>
+          {hero.engines.map((e) => (
+            <span key={e}>{e}</span>
+          ))}
+        </div>
       </div>
-      <style>{`
-        @keyframes cue { 0% { transform: translateY(-100%); } 100% { transform: translateY(200%); } }
-        .scroll-cue { animation: cue 1.8s var(--ease-in-out) infinite; }
-      `}</style>
     </section>
   );
 }

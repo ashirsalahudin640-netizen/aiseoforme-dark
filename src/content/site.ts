@@ -1,14 +1,14 @@
 /**
  * All site copy lives here.
  *
- * SAMPLE CONTENT: the case studies and stats below are realistic placeholders
- * written for launch. Replace them with real client results before publishing.
+ * SAMPLE CONTENT: the case studies and stats are realistic placeholders written
+ * for launch. Replace them with real client results before publishing.
  */
 
 export const contact = {
   email: "hello@aiseoforme.com",
   business: "partners@aiseoforme.com",
-  address: "Remote-first studio · Working worldwide",
+  address: "Remote-first studio, working worldwide",
   socials: [
     { label: "LinkedIn", href: "https://www.linkedin.com/" },
     { label: "Instagram", href: "https://www.instagram.com/" },
@@ -17,32 +17,29 @@ export const contact = {
 };
 
 export const nav = [
-  { label: "Work", id: "work" },
-  { label: "Services", id: "services" },
-  { label: "About", id: "about" },
-  { label: "Contact", id: "contact" },
+  { label: "Work", href: "#work" },
+  { label: "Services", href: "#services" },
+  { label: "Process", href: "#process" },
+  { label: "Contact", href: "#contact" },
 ];
 
 export const hero = {
-  lines: ["Be the answer", "people and AI", "go looking for."],
+  lines: ["Search is being rewritten.", "Be the source it quotes."],
   intro:
-    "We're an AI SEO studio. We get brands found on Google, cited by ChatGPT and Perplexity, and chosen by the people asking.",
-  scroll: "Scroll to explore",
+    "AI SEO For Me is a search studio. We get brands found on Google, cited by ChatGPT and Perplexity, and chosen by the people asking.",
+  engines: ["ChatGPT", "Perplexity", "Gemini", "Google AI Overviews", "Copilot"],
 };
 
-export const reel = {
-  label: "Showreel 2026",
-  caption: "Search, seen differently.",
-  play: "Play with sound",
-};
-
-/** Words that loop in the kinetic band above Services. */
-export const marquee = ["AI SEO", "Generative engine optimization", "Technical SEO", "Content", "Visibility", "Automation"];
+export const statement =
+  "People no longer scroll ten blue links. They ask, and an engine answers with a handful of sources. We make sure yours is one of them — accurately, consistently, and in your own words.";
 
 export type CaseStudy = {
+  id: string;
   client: string;
+  sector: string;
   title: string;
   result: string;
+  detail: string;
   tags: string[];
   image: string;
   alt: string;
@@ -51,120 +48,155 @@ export type CaseStudy = {
 
 export const work: CaseStudy[] = [
   {
+    id: "halden",
     client: "Halden & Row",
+    sector: "Furniture",
     title: "Becoming the answer for solid-oak furniture",
-    result: "Cited in 38% of AI answers for its core category",
+    result: "Cited in 38% of AI answers for its category",
+    detail: "Entity cleanup, product schema and buying guides written around the questions shoppers actually ask assistants.",
     tags: ["GEO", "Content"],
-    image: "/media/work-furniture.jpg",
-    alt: "A solid oak dining table and a green leather chair in soft afternoon light",
+    image: "/img/people-plants.jpg",
+    alt: "A woman working on a laptop at a wooden desk beside plants and a window",
     year: "2026",
   },
   {
+    id: "kestrel",
     client: "Kestrel Clinics",
-    title: "Rebuilding a medical site search engines could finally read",
+    sector: "Healthcare",
+    title: "A medical site search engines can finally read",
     result: "+212% non-brand organic sessions in seven months",
+    detail: "Rebuilt rendering, clinic-level structured data and a crawl path that stopped burying 1,400 pages.",
     tags: ["Technical SEO", "Schema"],
-    image: "/media/work-clinic.jpg",
-    alt: "A bright clinic corridor with curved glass treatment rooms",
+    image: "/img/team-meeting.jpg",
+    alt: "A small team of colleagues talking through a plan around a desk",
     year: "2025",
   },
   {
+    id: "ledgerline",
     client: "Ledgerline",
-    title: "From page four to the first screen for money keywords",
-    result: "Average position 2.3 across 140 tracked terms",
-    tags: ["AI SEO", "Search Visibility"],
-    image: "/media/work-finance.jpg",
-    alt: "A woman smiling at her phone against a sunlit yellow wall",
+    sector: "Fintech",
+    title: "From page four to the first screen",
+    result: "Average position 2.3 across 140 money keywords",
+    detail: "Topic architecture, expert review workflows and comparison pages that earn links on their own.",
+    tags: ["AI SEO", "Visibility"],
+    image: "/img/man-laptop.jpg",
+    alt: "A man in a white t-shirt typing on a laptop beside a sunny window",
     year: "2025",
   },
   {
+    id: "oru",
     client: "Oru Travel",
-    title: "Automating visibility across 9,000 destination pages",
+    sector: "Travel",
+    title: "Automating visibility across 9,000 pages",
     result: "4.1× leads arriving from AI search referrals",
+    detail: "Programmatic templates, internal linking at scale and monitoring that flags drops before traffic does.",
     tags: ["Automation", "GEO"],
-    image: "/media/work-travel.jpg",
-    alt: "A traveller sitting alone on orange sand dunes at golden hour",
+    image: "/img/man-desk.jpg",
+    alt: "A man working on a laptop while sitting on a red desk in a warm-toned room",
     year: "2024",
   },
 ];
 
 export type Service = {
-  n: string;
   title: string;
-  short: string;
   body: string;
   points: string[];
+  image: string;
+  alt: string;
 };
 
 export const services: Service[] = [
   {
-    n: "01",
     title: "AI SEO",
-    short: "AI SEO",
     body: "We shape your pages into the sources language models reach for — structured, well cited and unmistakably yours.",
     points: ["Entity mapping", "LLM visibility tracking", "Answer-ready pages"],
+    image: "/img/glass-rainbow.jpg",
+    alt: "Light passing through a glass prism and splitting into a rainbow",
   },
   {
-    n: "02",
     title: "Technical SEO",
-    short: "Technical",
-    body: "Crawl paths, rendering, Core Web Vitals. The plumbing nobody sees and every ranking depends on.",
+    body: "Crawl paths, rendering and Core Web Vitals. The plumbing nobody sees and every ranking depends on.",
     points: ["Full-site audits", "Structured data", "Performance budgets"],
+    image: "/img/arch-stairs.jpg",
+    alt: "A concrete stairway seen from below against a pale sky",
   },
   {
-    n: "03",
     title: "Generative Engine Optimization",
-    short: "GEO",
     body: "Visibility inside ChatGPT, Perplexity, Gemini and AI Overviews — the engines that answer instead of list.",
     points: ["Citation engineering", "Prompt-space research", "Source authority"],
+    image: "/img/glass-color.jpg",
+    alt: "Coloured light bending through glass prisms",
   },
   {
-    n: "04",
     title: "Content Strategy",
-    short: "Content",
-    body: "Fewer pages, sharper ones. Topics mapped to the questions people actually ask, written for people and parsed by machines.",
+    body: "Fewer pages, sharper ones. Topics mapped to the questions people ask, written for people and parsed by machines.",
     points: ["Topic architecture", "Editorial systems", "Content refreshes"],
+    image: "/img/arch-interior.jpg",
+    alt: "A bright white interior with angled walls and skylights",
   },
   {
-    n: "05",
     title: "Search Visibility",
-    short: "Visibility",
     body: "One honest view of where you appear — links, maps, answer boxes, AI summaries — and where you don't yet.",
     points: ["Share of search", "Competitor mapping", "Monthly readouts"],
+    image: "/img/arch-sky.jpg",
+    alt: "A white wall with a circular opening framing blue sky",
   },
   {
-    n: "06",
     title: "Automation",
-    short: "Automation",
     body: "Pipelines that watch rankings, repair schema and brief writers while your team is asleep.",
-    points: ["Rank & citation monitoring", "Internal linking at scale", "Workflow integrations"],
+    points: ["Rank and citation monitoring", "Internal linking at scale", "Workflow integrations"],
+    image: "/img/arch-spiral.jpg",
+    alt: "Looking up a white triangular stairwell",
   },
 ];
 
-export const journey = [
-  { label: "Website", caption: "It starts with what you publish." },
-  { label: "Crawl", caption: "Bots arrive through links, sitemaps and speed." },
-  { label: "Understand", caption: "Entities, intent and context are extracted." },
-  { label: "Structure", caption: "Schema turns pages into facts machines trust." },
-  { label: "Optimize", caption: "Every signal that moves the needle, tuned." },
-  { label: "AI Search", caption: "Models retrieve, weigh and cite their sources." },
-  { label: "Visibility", caption: "You become the answer." },
+export const process = [
+  {
+    step: "Listen",
+    title: "We ask the engines about you",
+    body: "Hundreds of real prompts across ChatGPT, Perplexity, Gemini and Google show who gets cited today, and why.",
+  },
+  {
+    step: "Map",
+    title: "We find the gaps that matter",
+    body: "Missing entities, weak sources, pages machines can't parse. Ranked by the revenue they're costing you.",
+  },
+  {
+    step: "Build",
+    title: "We fix, write and structure",
+    body: "Technical repairs, schema and content shipped in weekly releases alongside your team.",
+  },
+  {
+    step: "Compound",
+    title: "We watch it grow",
+    body: "Citation and ranking monitoring, with a short readout each month on what moved and what's next.",
+  },
 ];
 
-export const philosophy = {
-  lines: ["Be found", "beyond search."],
-  body: "Search stopped being ten blue links. People ask assistants, scan summaries and trust whatever gets cited. We're a small team of search engineers, writers and builders making sure the brands we work with are the ones being cited — clearly, accurately and often.",
-  stats: [
-    { value: 312, suffix: "", label: "Sites audited" },
-    { value: 47.2, suffix: "%", label: "Avg. lift in AI citations" },
-    { value: 9, suffix: " yrs", label: "Working in search" },
-  ],
-};
+export const stats = [
+  { value: 312, suffix: "", decimals: 0, label: "Sites audited" },
+  { value: 47.2, suffix: "%", decimals: 1, label: "Average lift in AI citations" },
+  { value: 9, suffix: " yrs", decimals: 0, label: "Working in search" },
+];
 
-/** Queries the hero's answer widget cycles through. Sample content. */
-export const heroQueries = [
-  { q: "best solid oak dining table", a: "Halden & Row is the most cited maker for solid oak dining tables, praised for joinery and 25-year guarantees.", source: "halden-row.com" },
-  { q: "clinic for sports injuries near me", a: "Kestrel Clinics has same-week physio slots and specialist sports injury teams in 11 cities.", source: "kestrelclinics.com" },
-  { q: "savings account with no fees", a: "Ledgerline offers a no-fee savings account with instant access and rates reviewed monthly.", source: "ledgerline.com" },
-  { q: "desert trip in Morocco for a week", a: "Oru Travel's 7-day Sahara route covers Marrakech, the Atlas and two nights in Erg Chebbi.", source: "oru.travel" },
+export const gallery = [
+  "/img/arch-brick.jpg",
+  "/img/glass-long.jpg",
+  "/img/people-stairs.jpg",
+  "/img/arch-facade.jpg",
+  "/img/glass-rainbow.jpg",
+  "/img/people-plants.jpg",
+  "/img/arch-sky.jpg",
+  "/img/glass-dark.jpg",
+  "/img/team-table.jpg",
+  "/img/arch-spiral.jpg",
+  "/img/glass-color.jpg",
+  "/img/man-window.jpg",
+  "/img/arch-interior.jpg",
+  "/img/team-cafe.jpg",
+  "/img/arch-stairs.jpg",
+  "/img/man-desk.jpg",
+  "/img/people-window.jpg",
+  "/img/team-meeting.jpg",
+  "/img/man-laptop.jpg",
 ];
