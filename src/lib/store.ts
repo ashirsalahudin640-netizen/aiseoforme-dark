@@ -11,9 +11,15 @@ export const store = {
   lenis: null as Lenis | null,
   /** Pointer in normalized device coords (-1..1). */
   pointer: { x: 0, y: 0 },
-  /** 0..1 progress of the hero scrolling out of view. */
-  heroProgress: 0,
   scrollVelocity: 0,
+  /** Scene drivers, all 0..1, written by ScrollTrigger and eased in the render loop. */
+  scene: {
+    hero: 0,
+    list: 0,
+    answer: 0,
+    /** false once the scene has fully faded; the render loop then stops. */
+    active: true,
+  },
 };
 
 export const READY_EVENT = "app:ready";
@@ -37,6 +43,6 @@ export function onReady(fn: () => void) {
 export function scrollToId(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
-  if (store.lenis) store.lenis.scrollTo(el, { duration: 1.4 });
+  if (store.lenis) store.lenis.scrollTo(el, { duration: 1.2 });
   else el.scrollIntoView({ behavior: store.reduced ? "auto" : "smooth" });
 }

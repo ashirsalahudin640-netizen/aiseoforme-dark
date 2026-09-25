@@ -1,104 +1,106 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-import { ArrowUpRight } from "lucide-react";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
-import { onReady, scrollToId, store } from "@/lib/store";
-import { hero } from "@/content/site";
-import { GooeyTextReveal } from "@/components/ui/gooey-text-reveal";
-import { LiquidMetalButton } from "@/components/ui/liquid-metal";
+import { useRef } from "react";
+import { ArrowUpRight } from "@phosphor-icons/react";
+import { SplitText } from "gsap/SplitText";
+import { gsap, useGSAP } from "@/lib/gsap";
+import { onReady, scrollToId } from "@/lib/store";
+import { prefersReducedMotion } from "@/lib/device";
+import { hero, queries } from "@/content/site";
+import WrapButton from "@/components/ui/wrap-button";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 
-const PrismScene = dynamic(() => import("@/components/three/PrismScene"), { ssr: false });
+gsap.registerPlugin(SplitText);
 
 export function Hero() {
-  const ref = useRef<HTMLElement>(null);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => onReady(() => setReady(true)), []);
+  const root = useRef<HTMLElement>(null);
 
   useGSAP(
     () => {
-      // Feed the 3D prism an eased progress value as the hero scrolls away.
-      const st = ScrollTrigger.create({
-        trigger: ref.current,
-        start: "top top",
-        end: "bottom top",
-        onUpdate: (self) => (store.heroProgress = self.progress),
-      });
-      if (!store.reduced) {
-        gsap.set([".hero-fade", ".hero-canvas"], { opacity: 0 });
-        gsap.to(".hero-copy", {
-          yPercent: -18,
-          opacity: 0,
-          ease: "none",
-          scrollTrigger: { trigger: ref.current, start: "top top", end: "70% top", scrub: 1 },
-        });
+      const title = root.current?.querySelector("h1");
+      if (!title) return;
+      const split = SplitText.create(title, { type: "lines", mask: "lines", linesClass: "line-mask-inner" });
+      gsap.set(split.lines, { yPercent: 110 });
+      gsap.set("[data-intro]", { autoAlpha: 0, y: 18 });
+      gsap.set(title, { autoAlpha: 1 });
+
+      if (prefersReducedMotion()) {
+        gsap.set(split.lines, { yPercent: 0 });
+        gsap.set("[data-intro]", { autoAlpha: 1, y: 0 });
+        return;
       }
-      return () => st.kill();
+
+      return onReady(() => {
+        gsap
+          .timeline({ delay: 0.15 })
+          .to(split.lines, { yPercent: 0, duration: 1.1, ease: "power4.out", stagger: 0.09 })
+          .to("[data-intro]", { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out", stagger: 0.07 }, 0.35);
+      });
     },
-    { scope: ref },
+    { scope: root },
   );
 
-  useGSAP(
-    () => {
-      if (!ready || store.reduced) return;
-      gsap.fromTo(
-        ".hero-fade",
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 1, delay: 0.9, stagger: 0.08, ease: "power3.out" },
-      );
-      gsap.fromTo(".hero-canvas", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 1.8, ease: "power3.out" });
-    },
-    { scope: ref, dependencies: [ready] },
-  );
+  const loop = [...queries, ...queries];
 
   return (
-    <section ref={ref} id="top" aria-label="Introduction" className="relative min-h-[100dvh] overflow-hidden">
-      <div className="hero-canvas absolute inset-0" aria-hidden="true">
-        <PrismScene />
-      </div>
-
-      <div className="hero-copy frame relative flex min-h-[100dvh] flex-col justify-end pb-28 pt-32 md:pb-32">
-        {ready ? (
-          <h1 className="display max-w-[14ch] text-[clamp(2.8rem,7.4vw,8.4rem)] text-ink">
-            <GooeyTextReveal mode="immediate" duration={1.3} stagger={0.14} blurAmount={0.8}>
-              <span className="block">{hero.lines[0]}</span>
-              <span className="block text-crystal pb-[0.08em]">{hero.lines[1]}</span>
-            </GooeyTextReveal>
+    <section
+      id="hero"
+      ref={root}
+      className="relative z-10 flex min-h-[100dvh] flex-col justify-end pt-28"
+    >
+      <div className="frame grid grid-cols-1 gap-10 pb-10 md:grid-cols-12 md:pb-14">
+        <div className="mt-[34vh] md:col-span-7 md:mt-0">
+          <p
+            data-intro
+            className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-line bg-white/70 py-1.5 pl-2.5 pr-3.5 text-[0.82rem] text-ink-soft backdrop-blur-sm"
+          >
+            <span className="relative flex size-2">
+              <span className="absolute inset-0 animate-ping rounded-full bg-orange/60" />
+              <span className="relative size-2 rounded-full bg-orange" />
+            </span>
+            Watching 1,284 buyer questions across five AI engines
+          </p>
+          <h1
+            className="display invisible text-[clamp(2.6rem,6.6vw,6.4rem)] text-ink"
+            aria-label={hero.title.join(" ")}
+          >
+            {hero.title.map((line) => (
+              <span key={line} className="block">
+                {line}
+              </span>
+            ))}
           </h1>
-        ) : (
-          <h1 className="display max-w-[14ch] text-[clamp(2.8rem,7.4vw,8.4rem)] text-ink opacity-0">
-            <span className="block">{hero.lines[0]}</span>
-            <span className="block">{hero.lines[1]}</span>
-          </h1>
-        )}
-
-        <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-[minmax(0,34rem)_auto] md:items-end md:justify-between">
-          <p className="hero-fade max-w-[40ch] text-[1.05rem] leading-relaxed text-ink-soft">{hero.intro}</p>
-          <div className="hero-fade flex flex-wrap items-center gap-5">
-            <LiquidMetalButton
-              size="lg"
-              data-cursor="Open"
-              onClick={() => scrollToId("contact")}
-              icon={<ArrowUpRight className="h-5 w-5 text-ink" strokeWidth={1.6} />}
-              metalConfig={{ colorBack: "#ff7d00", colorTint: "#ffe2c4", speed: 0.35 }}
+          <p data-intro className="lede mt-7">
+            {hero.intro}
+          </p>
+          <div data-intro className="mt-9 flex flex-wrap items-center gap-4">
+            <WrapButton href="#contact">Check my AI visibility</WrapButton>
+            <InteractiveHoverButton
+              type="button"
+              onClick={() => scrollToId("work")}
+              className="press h-[60px] border-line bg-white px-7 text-[0.95rem] font-medium text-ink"
             >
-              <span className="font-medium text-ink">Start a project</span>
-            </LiquidMetalButton>
-            <a
-              href="#work"
-              className="link-line text-[0.95rem] font-medium text-ink"
-            >
-              See the work
-            </a>
+              See the results
+            </InteractiveHoverButton>
           </div>
         </div>
+      </div>
 
-        <div className="hero-fade mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-line pt-6 text-[0.9rem] text-ink-soft">
-          <span className="font-medium text-orange">Visible in</span>
-          {hero.engines.map((e) => (
-            <span key={e}>{e}</span>
+      {/* Questions people are asking right now, and who the engine cited. */}
+      <div data-intro className="marquee relative border-y border-line bg-white/55 backdrop-blur-sm">
+        <div className="marquee-track flex w-max">
+          {loop.map((item, i) => (
+            <div
+              key={i}
+              aria-hidden={i >= queries.length}
+              className="flex shrink-0 items-center gap-3 border-r border-line px-7 py-4 text-[0.92rem]"
+            >
+              <span className="text-ink-soft">“{item.q}”</span>
+              <ArrowUpRight aria-hidden="true" size={14} className="text-ink-faint" />
+              <span className="font-medium text-ink">
+                Cited: <span className="text-orange-deep">{item.cited}</span>
+              </span>
+            </div>
           ))}
         </div>
       </div>

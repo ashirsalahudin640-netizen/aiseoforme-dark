@@ -18,9 +18,9 @@ export function Runtime() {
     let lenis: Lenis | null = null;
     let tick: ((time: number) => void) | null = null;
 
-    // Touch keeps native scrolling; wheel input gets a light, responsive lerp.
+    // Wheel gets a short, responsive lerp; touch keeps native scrolling.
     if (!store.reduced) {
-      lenis = new Lenis({ lerp: 0.12, wheelMultiplier: 1, anchors: { offset: 0 } });
+      lenis = new Lenis({ lerp: 0.14, wheelMultiplier: 1.05, anchors: true });
       store.lenis = lenis;
       lenis.on("scroll", (l: Lenis) => {
         store.scrollVelocity = l.velocity;
@@ -37,7 +37,6 @@ export function Runtime() {
     };
     window.addEventListener("pointermove", onMove, { passive: true });
 
-    // Fonts and images can shift layout after first paint; re-measure then.
     document.fonts?.ready.then(() => ScrollTrigger.refresh());
     const onLoad = () => ScrollTrigger.refresh();
     window.addEventListener("load", onLoad);

@@ -1,30 +1,34 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Funnel_Display, Funnel_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
-const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
+const body = Funnel_Sans({ subsets: ["latin"], variable: "--font-body" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono-face" });
+const display = Funnel_Display({ subsets: ["latin"], variable: "--font-display-face" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://aiseoforme.com"),
-  title: "AI SEO For Me — Be the source AI quotes",
+  title: "AI SEO For Me — Be the answer AI gives",
   description:
-    "An AI SEO studio. We get brands found on Google, cited by ChatGPT and Perplexity, and chosen by the people asking.",
+    "AI SEO For Me gets brands found on Google and cited by ChatGPT, Perplexity, Gemini and AI Overviews.",
   openGraph: {
-    title: "AI SEO For Me — Be the source AI quotes",
-    description: "AI-powered SEO and search visibility for the next generation of search.",
-    images: ["/img/glass-rainbow.jpg"],
+    title: "AI SEO For Me — Be the answer AI gives",
+    description: "AI SEO, generative engine optimization and technical SEO for brands that want to be cited.",
+    images: ["/stock/team-laptop.webp"],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FBFAF7",
+  themeColor: "#eef0f5",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={cn("antialiased font-sans", geist.variable, mono.variable)}>
+    <html
+      lang="en"
+      className={cn("antialiased font-sans", body.variable, display.variable, mono.variable)}
+    >
       <body>{children}</body>
     </html>
   );

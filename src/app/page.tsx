@@ -1,38 +1,35 @@
 import { Runtime } from "@/components/Runtime";
-import { IntroLoader } from "@/components/IntroLoader";
-import { Brand } from "@/components/Brand";
-import { Dock } from "@/components/Dock";
-import { Cursor } from "@/components/ui/Cursor";
-import { Hero } from "@/components/sections/Hero";
-import { Statement } from "@/components/sections/Statement";
-import { Showcase } from "@/components/sections/Showcase";
-import { Work } from "@/components/sections/Work";
-import { Services } from "@/components/sections/Services";
-import { Orbit } from "@/components/sections/Orbit";
-import { Process } from "@/components/sections/Process";
-import { Closing } from "@/components/sections/Closing";
-import { Footer } from "@/components/sections/Footer";
+import { Nav } from "@/components/Nav";
+import { Hero } from "@/components/up/Hero";
+import { Shift } from "@/components/up/Shift";
+import { Services } from "@/components/up/Services";
+import { AnswerDemo } from "@/components/up/AnswerDemo";
+import { Work } from "@/components/up/Work";
+import { Process } from "@/components/up/Process";
+import { Feedback } from "@/components/up/Feedback";
+import { Contact } from "@/components/up/Contact";
+import { Footer } from "@/components/up/Footer";
+import { AtomCursor } from "@/components/up/AtomCursor";
+import { Intro } from "@/components/up/Intro";
 
 export default function Home() {
   return (
     <>
       <Runtime />
-      <IntroLoader />
-      <Brand />
+      <AtomCursor />
+      <Intro />
+      <Nav />
       <main className="relative">
         <Hero />
-        <Statement />
-        <Showcase />
-        <Work />
+        <Shift />
         <Services />
-        <Orbit />
+        <AnswerDemo />
+        <Work />
         <Process />
-        <Closing />
+        <Feedback />
+        <Contact />
       </main>
       <Footer />
-      <Dock />
-      <Cursor />
-      <div className="grain" aria-hidden="true" />
     </>
   );
 }

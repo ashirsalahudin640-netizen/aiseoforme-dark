@@ -1,140 +1,112 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
-import { store } from "@/lib/store";
+import { gsap, useGSAP } from "@/lib/gsap";
+import { useIdle } from "@/lib/useIdle";
+import { prefersReducedMotion } from "@/lib/device";
 import { services } from "@/content/site";
-import { FluidMorphBg } from "@/components/ui/fluid-morph-bg";
-import { BorderBeam } from "@/components/ui/border-beam";
+import { IsoArt } from "@/components/illustrations/Iso";
 
-/**
- * Pinned horizontal gallery (animmaster "scroll hijack"): vertical scroll pans
- * the six services sideways. Scrub is smoothed so the track glides, never snaps.
- * Phones and reduced motion get a plain vertical stack.
- */
+const STICK = 96; // px from the top where each card settles
+
+/** Sticky stacked cards: each new service slides over and gently pushes the last one back. */
 export function Services() {
-  const ref = useRef<HTMLElement>(null);
-  const track = useRef<HTMLDivElement>(null);
-  const bar = useRef<HTMLSpanElement>(null);
+  const root = useRef<HTMLElement>(null);
+  useIdle(root);
 
   useGSAP(
     () => {
-      const mm = gsap.matchMedia();
-      mm.add("(min-width: 900px) and (prefers-reduced-motion: no-preference)", () => {
-        if (store.reduced) return;
-        const el = track.current!;
-        const distance = () => el.scrollWidth - window.innerWidth;
-        const tween = gsap.to(el, {
-          x: () => -distance(),
+      if (prefersReducedMotion()) return;
+      const cards = gsap.utils.toArray<HTMLElement>("[data-card]");
+      cards.forEach((card, i) => {
+        const next = cards[i + 1];
+        if (!next) return;
+        gsap.to(card.querySelector("[data-card-body]"), {
+          scale: 0.93,
           ease: "none",
           scrollTrigger: {
-            trigger: ref.current,
-            start: "top top",
-            end: () => "+=" + distance(),
-            pin: true,
-            scrub: 1,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              if (bar.current) bar.current.style.transform = `scaleX(${self.progress})`;
-            },
+            trigger: next,
+            start: "top bottom",
+            end: `top ${STICK + (i + 1) * 14}px`,
+            scrub: true,
           },
         });
-        // Each card's image drifts against the pan for depth.
-        gsap.utils.toArray<HTMLElement>(".svc-img").forEach((img) => {
-          gsap.fromTo(img, { xPercent: -8 }, {
-            xPercent: 8,
-            ease: "none",
-            scrollTrigger: {
-              trigger: img.closest(".svc-card"),
-              containerAnimation: tween,
-              start: "left right",
-              end: "right left",
-              scrub: true,
-            },
-          });
+        gsap.to(card.querySelector("[data-card-shade]"), {
+          opacity: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: next,
+            start: "top 60%",
+            end: `top ${STICK + (i + 1) * 14}px`,
+            scrub: true,
+          },
         });
-        return () => ScrollTrigger.refresh();
       });
-      return () => mm.revert();
     },
-    { scope: ref },
+    { scope: root },
   );
 
   return (
-    <section ref={ref} id="services" aria-labelledby="services-title" className="relative overflow-hidden">
-      {/* Warm liquid backdrop in the logo colours; the cards are crystal glass over it. */}
-      <div className="pointer-events-none absolute inset-0 opacity-90" aria-hidden="true">
-        <FluidMorphBg
-          duration={9}
-          backgroundColor="#fff3e6"
-          colors={["#ffe2c4", "#ffc58f", "#ff9a3c", "#ff7d00", "#ffb266", "#2a27a8", "#0b076e"]}
-        />
-      </div>
-      <div className="pointer-events-none absolute inset-0 bg-white/35" aria-hidden="true" />
-      <div className="flex min-h-[100dvh] flex-col justify-center py-24 min-[900px]:py-0">
-        <div
-          ref={track}
-          className="flex flex-col gap-6 px-[var(--gutter)] min-[900px]:w-max min-[900px]:flex-row min-[900px]:items-stretch min-[900px]:gap-8"
-        >
-          <div className="flex flex-col justify-between gap-10 min-[900px]:w-[34vw] min-[900px]:py-4 min-[900px]:pr-10">
-            <div>
-              <p className="eyebrow mb-5 text-ink">What we do</p>
-              <h2 id="services-title" className="display text-[clamp(3rem,6vw,6.5rem)] text-ink">
-                Six ways to be <span className="text-crystal">found.</span>
-              </h2>
-            </div>
-            <p className="max-w-[34ch] text-[1.05rem] leading-relaxed text-ink">
-              One team for every surface where search now happens — from the crawl to the citation.
-              Scroll to move through them.
-            </p>
-          </div>
+    <section
+      id="services"
+      ref={root}
+      className="relative z-10 rounded-t-[2.5rem] bg-pearl pb-[12vh] pt-24 shadow-[0_-30px_60px_-40px_rgba(22,23,27,0.25)] md:pt-32"
+    >
+      <div className="frame">
+        <div className="mb-14 grid gap-6 md:mb-20 md:grid-cols-12">
+          <h2 className="display text-[clamp(2.1rem,4.6vw,4.2rem)] md:col-span-7">
+            Five ways we get you quoted.
+          </h2>
+          <p className="lede md:col-span-4 md:col-start-9 md:self-end">
+            Most agencies still sell rankings. We work on the whole path an engine takes, from crawling your
+            site to deciding your name belongs in the answer.
+          </p>
+        </div>
 
+        <div className="relative">
           {services.map((s, i) => (
             <article
               key={s.title}
-              className="svc-card crystal group relative flex flex-col overflow-hidden rounded-3xl min-[900px]:h-[76vh] min-[900px]:w-[min(38vw,560px)]"
+              data-card
+              className="sticky mb-8 last:mb-0"
+              style={{ top: STICK + i * 14 }}
             >
-              <div className="relative aspect-[16/10] overflow-hidden min-[900px]:aspect-auto min-[900px]:h-[48%]">
-                <div className="svc-img absolute inset-y-0 -left-[10%] -right-[10%]">
-                  <Image
-                    src={s.image}
-                    alt={s.alt}
-                    fill
-                    sizes="(min-width: 900px) 40vw, 92vw"
-                    loading="eager"
-                    className="object-cover transition-transform duration-[1.2s] ease-[var(--ease-out)] group-hover:scale-[1.04]"
-                  />
+              <div
+                data-card-body
+                className="relative origin-top overflow-hidden rounded-[2rem] border border-white bg-white shadow-[0_30px_60px_-35px_rgba(22,23,27,0.35)] will-change-transform"
+              >
+                <div className="grid md:min-h-[min(68vh,560px)] md:grid-cols-2">
+                  <div className="flex flex-col justify-between gap-10 p-7 md:p-12">
+                    <div>
+                      <p className="text-sm text-ink-faint">
+                        {String(i + 1).padStart(2, "0")} of {String(services.length).padStart(2, "0")}
+                      </p>
+                      <h3 className="display mt-4 text-[clamp(1.7rem,3vw,2.8rem)]">{s.title}</h3>
+                      <p className="mt-5 max-w-[30rem] text-[1.05rem] leading-relaxed text-ink-soft">{s.body}</p>
+                    </div>
+                    <ul className="flex flex-wrap gap-2">
+                      {s.points.map((p) => (
+                        <li
+                          key={p}
+                          className="rounded-full border border-line bg-pearl px-4 py-2 text-[0.88rem] text-ink"
+                        >
+                          {p}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="relative m-2 overflow-hidden rounded-[1.6rem] bg-[radial-gradient(120%_90%_at_70%_20%,#ffe6d6_0%,#f6efe9_38%,#eceef1_100%)] md:m-3">
+                    <IsoArt art={s.art} className="mx-auto h-full max-h-[440px] w-full max-w-[520px] p-4" />
+                  </div>
                 </div>
-              </div>
-              <BorderBeam size={260} duration={9 + i} colorFrom="#ff7d00" colorTo="#0b076e" borderWidth={1.5} />
-              <div className="flex flex-1 flex-col justify-between gap-6 p-7 md:p-9">
-                <div>
-                  <p className="font-mono text-[0.8rem] text-orange">
-                    {String(i + 1).padStart(2, "0")} / {String(services.length).padStart(2, "0")}
-                  </p>
-                  <h3 className="mt-3 text-[clamp(1.6rem,2.3vw,2.3rem)] font-light leading-[1.05] tracking-[-0.03em] text-ink">
-                    {s.title}
-                  </h3>
-                  <p className="mt-4 text-[1rem] leading-relaxed text-ink-soft">{s.body}</p>
-                </div>
-                <ul className="flex flex-wrap gap-2">
-                  {s.points.map((p) => (
-                    <li key={p} className="rounded-full border border-line px-3 py-1 text-[0.8rem] text-ink-soft">
-                      {p}
-                    </li>
-                  ))}
-                </ul>
+                <div
+                  data-card-shade
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 bg-pearl-deep/60 opacity-0"
+                />
               </div>
             </article>
           ))}
-          <div className="hidden w-[6vw] shrink-0 min-[900px]:block" aria-hidden="true" />
-        </div>
-
-        <div className="frame absolute inset-x-0 bottom-8 hidden min-[900px]:block" aria-hidden="true">
-          <div className="h-[2px] w-full overflow-hidden rounded-full bg-line">
-            <span ref={bar} className="block h-full origin-left scale-x-0 bg-gradient-to-r from-orange to-navy" />
-          </div>
         </div>
       </div>
     </section>
